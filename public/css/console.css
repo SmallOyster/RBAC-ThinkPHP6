@@ -1,0 +1,62 @@
+/**
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2020-06-25
+ * @version 2020-06-25
+*/
+
+td,
+th {
+    vertical-align: middle !important;
+}
+
+th {
+    text-align: center;
+}
+
+.cell-center {
+    text-align: center;
+}
+
+.cell-button-group {
+    padding: 4px !important;
+}
+
+.cell-button-group button {
+    padding: 3px 7px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+tbody tr:hover {
+    color: #8a6d3b !important;
+    background-color: #fcf8e3 !important;
+    border-color: #faebcc !important;
+}
+
+.main-header .sidebar-toggle:before {
+    content: "";
+}
+
+.modal {
+    overflow-y: auto;
+}
+
+/* 方便表格左右移动 [start] */
+.div_table {
+    overflow: auto;
+    display: block;
+}
+
+.div_table table {
+    min-width: 100%;
+}
+
+/* 方便表格左右移动 [end] */
+
+.operateBtnGroup {
+    padding-bottom: 15px;
+}
+
+.input-group .input-group-addon {
+    background-color: #eee !important;
+}
