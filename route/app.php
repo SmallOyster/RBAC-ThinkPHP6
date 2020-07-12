@@ -1,17 +1,33 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
+/**
+ * @name 生蚝科技TP6-RBAC开发框架-R-全局路由
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2020-07-12
+ * @version 2020-07-12
+ */
+
 use think\facade\Route;
 
-Route::get('think', function () {
-    return 'hello,ThinkPHP6!';
+Route::group('user', function () {
+	Route::get('index', 'User/index');
+	Route::post('list', 'User/getList');
 });
 
-Route::get('hello/:name', 'index/hello');
+Route::group('api', function () {
+	Route::group('menu', function () {
+		Route::get('getCurrentUserMenu', 'api.Menu/getCurrentUserMenu');
+	});
+
+	Route::group('user', function () {
+		Route::get('getCurrentUserInfo', 'api.User/getCurrentUserInfo');
+		Route::get('list', 'api.User/getList');
+	});
+
+	Route::group('role', function () {
+		Route::get('list', 'api.Role/getList');
+	});
+});
+
+Route::get('login', 'Index/login');
+Route::post('toLogin', 'Index/toLogin');
+Route::get('logout', 'Index/logout');

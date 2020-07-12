@@ -1,17 +1,75 @@
 <?php
+
+/**
+ * @name 生蚝科技TP6-RBAC开发框架-V-首页
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2020-07-12
+ * @version 2020-07-12
+ */
+
 namespace app\controller;
 
 use app\BaseController;
+use think\facade\Session;
+use app\model\User as UserModel;
+use app\model\Role as RoleModel;
 
 class Index extends BaseController
 {
-    public function index()
-    {
-        return '<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px;} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:) </h1><p> ThinkPHP V' . \think\facade\App::version() . '<br/><span style="font-size:30px;">14载初心不改 - 你值得信赖的PHP框架</span></p><span style="font-size:25px;">[ V6.0 版本由 <a href="https://www.yisu.com/" target="yisu">亿速云</a> 独家赞助发布 ]</span></div><script type="text/javascript" src="https://tajs.qq.com/stats?sId=64890268" charset="UTF-8"></script><script type="text/javascript" src="https://e.topthink.com/Public/static/client.js"></script><think id="ee9b1aa918103c4fc"></think>';
-    }
+	public function index()
+	{
+		return view('/index/index');
+	}
 
-    public function hello($name = 'ThinkPHP6')
-    {
-        return 'hello,' . $name;
-    }
+
+	public function logout()
+	{
+		Session::clear();
+		gotourl('/login');
+	}
+
+
+	public function login()
+	{
+		return view('/index/login');
+	}
+
+
+	public function toLogin()
+	{
+		$userName = inputPost('userName', 0, 1);
+		$password = inputPost('password', 0, 1);
+
+		if (checkPassword($userName, $password) !== true) {
+			return packApiData(403, 'Invalid userName or password', [], '用户名或密码错误');
+		}
+
+		$userInfo = UserModel::field('id,nick_name AS nickName,role_id AS roleId,phone,email,status')
+			->where('user_name', $userName)
+			->find()
+			->toArray();
+
+		// 账户被禁用
+		if ($userInfo['status'] !== 1) return packApiData(1, 'Current account is locked');
+
+		// 获取角色名称
+		$roleInfo = RoleModel::field('name')
+			->where('id', $userInfo['roleId'])
+			->find();
+
+		if (isset($roleInfo['name']) && $roleInfo['name']) $userInfo['roleName'] = $roleInfo['name'];
+		else return packApiData(2, 'Role info not found', ['roleId' => $userInfo['roleId']]);
+
+		// 设置用户信息session
+		$userInfo['userName'] = $userName;
+		Session::set('userInfo', $userInfo);
+
+		// 更新用户最后登录时间
+		UserModel::update(['last_login' => date('Y-m-d H:i:s')], ['user_name' => $userName]);
+
+		return packApiData(200, 'success', [
+			'url' => \think\facade\Config::get('app.app_host'),
+			'userInfo' => $userInfo
+		]);
+	}
 }

@@ -2,8 +2,15 @@
 // 应用公共文件
 
 use think\facade\Request;
-use think\facade\Session;
 
+/**
+ * getSetting 获取数据库中的系统配置
+ * @param string $configName 配置键名
+ * @return string 配置值
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2020-07-12
+ * @version 2020-07-12
+ */
 function getSetting($configName = '')
 {
 	$info = \app\model\Setting::field('value')
@@ -13,14 +20,15 @@ function getSetting($configName = '')
 	return $info['value'];
 }
 
+
 /**
  * checkPassword 校验密码的有效性
  * @param string $userName
  * @param string $password
  * @return boolean 密码是否有效
  * @author Oyster Cheung <master@xshgzs.com>
- * @since 2020-06-25
- * @version 2020-06-25
+ * @since 2020-07-12
+ * @version 2020-07-12
  */
 function checkPassword($userName = '', $password = '')
 {
@@ -30,6 +38,38 @@ function checkPassword($userName = '', $password = '')
 
 	if (sha1($userInfo['salt'] . md5($userName . $password) . $password) === $userInfo['password']) return true;
 	else return false;
+}
+
+
+/**
+ * getRandomStr  获取随机字符串
+ * @param int     $length 欲获取的随机字符串长度
+ * @param int     $type   0:无限制|1:只要大写|2:只要小写|3:字母数字混合
+ * @return string         随机字符串
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2018-09-28
+ * @version 2020-07-12
+ */
+function getRandomStr($length, $type = 0)
+{
+	if ($type == 1) {
+		$str = 'ZXCVBNQWERTYASDFGHJKLUPM';
+	} elseif ($type == 2) {
+		$str = 'qwertyasdfghzxcvbnupmjk';
+	} elseif ($type == 3) {
+		$str = 'qwerty123asdfgh4567zxcvbnu89pmjk0';
+	} else {
+		$str = 'qw$ertyZXC123%VBNasdfg4.56hQWERT*YzxcvbnAS,DFGH789-upJKLn!0mUPj_k';
+	}
+
+	$ranstr = '';
+	$strlen = strlen($str) - 1;
+	for ($i = 1; $i <= $length; $i++) {
+		$ran = mt_rand(0, $strlen);
+		$ranstr .= $str[$ran];
+	}
+
+	return $ranstr;
 }
 
 
@@ -60,11 +100,9 @@ function getIP()
 		$cip = $_SERVER["HTTP_CLIENT_IP"];
 	} elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
 		$cip = $_SERVER["HTTP_X_FORWARDED_FOR"];
-	}
-	elseif (!empty($_SERVER["REMOTE_ADDR"])) {
+	} elseif (!empty($_SERVER["REMOTE_ADDR"])) {
 		$cip = $_SERVER["REMOTE_ADDR"];
-	}
-	else {
+	} else {
 		$cip = "0.0.0.0";
 	}
 	return $cip;
@@ -79,7 +117,7 @@ function getIP()
  * @param  string   $tips       中文提示语
  * @param  boolean  $needLog    是否需要日志记录
  * @param  boolean  $isDie      是否直接die输出
- * @return string/die
+ * @return string|die
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2019-11-17
  * @version 2020-05-30
@@ -138,7 +176,7 @@ function makeUUID()
 function gotourl($path = '')
 {
 	$fullPath = url($path);
-	die(header('location:' . $fullPath));
+	header('location:' . $fullPath);
 }
 
 
@@ -167,8 +205,7 @@ function inputGet($dataName = '', $allowNull = 0, $isAjax = 0, $errorCode = 0, $
 		}
 	} elseif ($allowNull == 1) {
 		return null;
-	}
-	else {
+	} else {
 		return $isAjax == 1 ? packApiData($errorCode, $errorMsg, [], $errorTips, false, true) : die();
 	}
 }
@@ -182,7 +219,7 @@ function inputGet($dataName = '', $allowNull = 0, $isAjax = 0, $errorCode = 0, $
  * @param  integer $errorCode isAjax=1时，参数缺失提醒的错误码
  * @param  string  $errorMsg  isAjax=1时，参数缺失提醒的错误内容
  * @param  string  $errorTips isAjax=1时，参数缺失提醒的错误汉字提醒
- * @return string/array       参数内容
+ * @return string|array       参数内容
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2019-11-17
  * @version 2020-01-23
@@ -207,8 +244,7 @@ function inputPost($dataName = '', $allowNull = 0, $isAjax = 0, $errorCode = 0, 
 		}
 	} elseif ($allowNull == 1) {
 		return null;
-	}
-	else {
+	} else {
 		return $isAjax == 1 ? packApiData($errorCode, $errorMsg, [], $errorTips, false, true) : die();
 	}
 }
@@ -223,7 +259,7 @@ function inputPost($dataName = '', $allowNull = 0, $isAjax = 0, $errorCode = 0, 
  * @param  string  $returnType   返回数据类型(origin/json)
  * @param  integer $timeout      超时秒数
  * @param  string  $userAgent    UserAgent
- * @return string/array          返回结果(类型看returnType)
+ * @return string|array          返回结果(类型看returnType)
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2019-11-17
  * @version 2020-04-04

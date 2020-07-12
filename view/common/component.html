@@ -1,0 +1,325 @@
+<!-- 多选模态框 -->
+<!-- @Oyster Cheung(20200105-20200501) -->
+<style>
+	.select-picker {
+		padding: 10px;
+	}
+
+	.select-picker ul {
+		padding-left: 8px;
+	}
+
+	.select-picker li {
+		list-style: none;
+		padding-left: 40px;
+		line-height: 40px;
+		background: url("/public/image/icon-radio.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker li.on {
+		background: url("/public/image/icon-radio-on.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker .checkbox li {
+		background: url("/public/image/icon-checkbox.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker .checkbox li.on {
+		background: url("/public/image/icon-checkbox-on.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker .checkbox li.on-disable {
+		background: url("/public/image/icon-checkbox-on-disable.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker .radio li {
+		background: url("/public/image/icon-radio.png") left center no-repeat;
+		background-size: 24px;
+	}
+
+	.select-picker .radio li.on {
+		background: url("/public/image/icon-radio-on.png") left center no-repeat;
+		background-size: 24px;
+	}
+</style>
+
+<template id="choose-item-template">
+	<div class="modal fade bs-example-modal-lg" id="chooseItemModalMain">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h3 class="modal-title">{{title}}</h3>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<input @input="filterData" v-model="filterText" class="form-control"
+										   placeholder="输入内容以筛选">
+								</div>
+								<div style="height: 300px; overflow: auto" class="select-picker">
+									<ul i="ul-body" :class="[(multiple===true)?'checkbox':'radio']">
+										<!-- 是否初次打开选择框 -->
+										<template v-if="filteredList===''">
+											<li v-for="(name,id) in itemList"
+												:class="[(checkedList.indexOf(id)>=0)?'on':'']"
+												@click="checked(id)">{{name}}</li>
+										</template>
+										<template v-else>
+											<li v-for="(name,id) in filteredList"
+												:class="[(checkedList.indexOf(id)>=0)?'on':'']"
+												@click="checked(id)">{{name}}</li>
+										</template>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button v-if="multiple===true" class="btn btn-warning" @click="clearAll">清空</button>
+					<button class="btn btn-primary" @click="close">关闭</button>
+					<button class="btn btn-success" @click="returnCheckedId">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	var chooseItemModalVue = {
+		template: '#choose-item-template',
+		props: [
+			'title',// 模态框标题
+			'itemList',// 节点列表（一维id:name）
+			'propCheckedList',// 默认选中的节点列表
+			'multiple',// 是否允许多选
+			'saveMethodName',// 父组件中，保存选中数据的方法名
+		],
+		data: function () {
+			return {
+				checkedList: this.propCheckedList,
+				filterText: "",
+				filteredList: ""
+			}
+		},
+		methods: {
+			returnCheckedId: function () {
+				this.$emit('update:checked-node', this.checkedList);
+				this.$parent[this.saveMethodName]();
+
+				$("#chooseItemModalMain").modal('hide');
+			},
+			filterData: function () {
+				if (this.filterText == "") {
+					this.filteredList = "";
+					return;
+				}
+
+				this.filteredList = [];
+
+				for (i in this.itemList) {
+					if (this.itemList[i].indexOf(this.filterText) > -1) {
+						this.filteredList[i] = this.itemList[i];
+					}
+				}
+			},
+			show: function () {
+				// 第二次调用时要更新节点列表
+				this.checkedList = this.propCheckedList;
+
+				$("#chooseItemModalMain").modal('show');
+				return true;
+			},
+			checked: function (id) {
+				if (this.multiple === true) {
+					let loc = this.checkedList.indexOf(id);
+
+					// 如果已选中，去除掉
+					if (loc >= 0) {
+						this.checkedList.splice(loc, 1);
+					} else {
+						this.checkedList.push(id);
+					}
+				} else {
+					// 单选直接赋值就好
+					this.checkedList = [id];
+				}
+			},
+			clearAll: function () {
+				this.checkedList = [];
+				this.filterText = "";
+				this.filteredList = "";
+			},
+			close: function () {
+				this.clearAll();
+				$("#chooseItemModalMain").modal('hide');
+			}
+		}
+	};
+</script>
+<!-- /.多选模态框 -->
+
+
+<!-- 数据表头筛选组 -->
+<!-- @Oyster Cheung(20200531-20200531) -->
+<style>
+	.table-filter-group div {
+		padding-left: 100px;
+	}
+
+	.table-filter-group label {
+		width: 100px;
+		position: absolute;
+		top: 7px;
+		left: 0;
+		text-align: right;
+	}
+
+	.table-filter-group input {
+		padding: 3px 10px;
+		border-color: #ccd7ef;
+		border-radius: 4px;
+	}
+</style>
+
+<template id="table-filter-template">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="row" v-for="(row,rowIndex) in form">
+				<div v-for="(cell,cellIndex) in row"
+					 :class='["col-md-"] + (12/(Object.getOwnPropertyNames(row).length-1))'>
+					<div class="form-group table-filter-group">
+						<label>{{cell.name}}：</label>
+						<div>
+							<input class="form-control" v-model="formData[cellIndex]" autocomplete="off"
+								   :placeholder="cell.name">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<button @click="search" class="btn btn-primary"><i class="glyphicon glyphicon-search"></i> 搜索</button>
+			<button @click="reset" class="btn btn-info"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
+		</div>
+	</div>
+</template>
+
+<script>
+	var tableFilterVue = {
+		template: '#table-filter-template',
+		props: [
+			'form',
+			'filterData',
+			'submitEventName',
+		],
+		data: function () {
+			return {
+				formData: {},
+				eventName: this.submitEventName,
+			}
+		},
+		methods: {
+			search: function () {
+				for (i in this.formData) {
+					if (this.formData[i] == "") delete this.formData[i];
+				}
+
+				this.$emit('update:filter-data', this.formData);
+				this.$parent[this.eventName]();
+			},
+			reset: function () {
+				this.formData = {};
+			}
+		}
+	};
+</script>
+<!-- /.数据表头筛选组 -->
+
+
+<!-- 表格分页条 -->
+<!-- @Oyster Cheung(20200531-20200531) -->
+<template id="pagination-template">
+	<div>
+		<p style="float: left;">
+			当前显示{{(nowPage-1)*perPage+1}}~{{(nowPage*perPage>=total) ? total : nowPage*perPage}}条，共{{total}}条数据
+		</p>
+
+		<p style="float: right;">
+			第<input v-model="inputNowPage" @keyup.enter="changePage(parseInt(inputNowPage))"
+				   style="width: 50px;" data-toggle="tooltip" data-placement="right"
+				   title="按回车即可跳转">页，共{{totalPage}}页
+		</p>
+
+		<center>
+			<ul class="pagination">
+				<li :class="{hidden:(nowPage<=1)}">
+					<a @click="changePage(1)"><span aria-hidden="true">«</span></a>
+				</li>
+				<li :class="{hidden:(nowPage<=1)}">
+					<a @click="changePage(nowPage-1)"><span aria-hidden="true">&lt;</span></a>
+				</li>
+
+				<li v-if="nowPage-2>=1"><a @click="changePage(nowPage-2)">{{nowPage-2}}</a></li>
+				<li v-if="nowPage-1>=1"><a @click="changePage(nowPage-1)">{{nowPage-1}}</a></li>
+
+				<li class="active"><a>{{nowPage}}</a></li>
+
+				<li v-if="nowPage+1<=totalPage"><a @click="changePage(nowPage+1)">{{nowPage+1}}</a></li>
+				<li v-if="nowPage+2<=totalPage"><a @click="changePage(nowPage+2)">{{nowPage+2}}</a></li>
+
+				<li :class="{hidden:(nowPage==totalPage)}">
+					<a @click="changePage(nowPage+1)"><span aria-hidden="true">&gt;</span></a>
+				</li>
+				<li :class="{hidden:(nowPage==totalPage)}">
+					<a @click="changePage(totalPage)"><span aria-hidden="true">»</span></a>
+				</li>
+			</ul>
+		</center>
+	</div>
+</template>
+
+<script>
+	$(function () {
+		$('[data-toggle="tooltip"]').tooltip();
+	})
+
+	var paginationVue = {
+		template: '#pagination-template',
+		props: [
+			'now',
+			'total',
+			'perPage',
+			'getdataEventName',
+		],
+		data: function () {
+			return {
+				nowPage: this.now,
+				inputNowPage: this.now,
+				totalData: 0,
+				totalPage: 0,
+			}
+		},
+		methods: {
+			changePage: function (page) {
+				if (page > this.totalPage) {
+					alert("页码超过最大页数，当前数据共" + this.totalPage + "页");
+					return;
+				}
+
+				this.nowPage = page;
+				this.inputNowPage = page;
+				this.$emit('update:now', page);
+				this.$parent[this.getdataEventName]();
+			}
+		}
+	};
+</script>
+<!-- /.表格分页条 -->

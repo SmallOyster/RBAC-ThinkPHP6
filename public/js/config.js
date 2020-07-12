@@ -1,5 +1,5 @@
 window.CONFIG = {
 	rootPath: "/",
-	indexUrl: "/index/main",
+	indexUrl: "/",
 	apiPath: "/api/"
 };
