@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-12
+ * @version 2020-07-13
  */
 ?>
 
@@ -17,6 +17,10 @@
 		#CUModal>div {
 			width: 800px;
 		}
+	}
+
+	.banUser{
+		background-color: #ffbdbd !important;
 	}
 </style>
 {/block}
@@ -50,25 +54,30 @@
 		</thead>
 
 		<tbody>
-			<tr v-for="info in list">
-				<td>{{info['id']}}</td>
-				<td class="cell-center">{{info['user_name']}}</td>
-				<td class="cell-center">{{info['nick_name']}}</td>
-				<td class="cell-center">{{info['phone']}}</td>
-				<td class="cell-center">{{info['email']}}</td>
-				<td class="cell-center">{{info['create_time']}}</td>
-				<td class="cell-center">{{info['last_login']}}</td>
+			<tr v-for="info in list" :class="[info['status']===0?banUserClass:'']">
+				<td>{{info.id}}</td>
+				<td class="cell-center">{{info.user_name}}</td>
+				<td class="cell-center">{{info.nick_name}}</td>
+				<td class="cell-center">{{info.phone}}</td>
+				<td class="cell-center">{{info.email}}</td>
+				<td class="cell-center">{{info.create_time}}</td>
+				<td class="cell-center">{{info.last_login}}</td>
 				<td class="cell-button-group">
-					<button class="btn btn-info"
-							@click="readyCU('update',info)">编辑</button>
-					<button v-if="info['id']!==getUserInfo()['id']" class="btn btn-purple"
-							@click="readyResetPassword(info['id'],info['user_name'],info['nick_name'])">重置密码</button>
-					<button v-if="info.status===1" class="btn btn-warning"
-							@click="readyBanOrOpen('ban',info['id'],info['user_name'],info['nick_name'])">禁用</button>
-					<button v-else-if="info.status===0" class="btn btn-success"
-							@click="readyBanOrOpen('open',info['id'],info['user_name'],info['nick_name'])">启用</button>
-					<button class="btn btn-danger"
-							@click="readyDelete(info['id'],info['user_name'],info['user_name'])">删除</button>
+					<div v-if="info.id!==getUserInfo().id">
+						<button class="btn btn-info"
+								@click="readyCU('update',info)">编辑</button>
+						<button class="btn btn-purple"
+								@click="readyResetPassword(info.id,info.user_name,info.nick_name)">重置密码</button>
+						<button v-if="info.status===1" class="btn btn-warning"
+								@click="readyBanOrOpen('ban',info.id,info.user_name,info.nick_name)">禁用</button>
+						<button v-else-if="info.status===0" class="btn btn-success"
+								@click="readyBanOrOpen('open',info.id,info.user_name,info.nick_name)">启用</button>
+						<button class="btn btn-danger"
+								@click="readyDelete(info.id,info.user_name,info.user_name)">删除</button>
+					</div>
+					<div v-else>
+						<font color="red">禁止操作当前用户</font>
+					</div>
 				</td>
 			</tr>
 		</tbody>
@@ -147,6 +156,39 @@
 	</div>
 </div>
 
+<div class="modal fade" id="initialPasswordModal" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+				<h3 class="modal-title">
+					初始密码
+				</h3>
+			</div>
+			<div class="modal-body">
+				<table class="table table-striped table-bordered table-hover"
+					   style="border-radius: 5px; border-collapse: separate;">
+					<tr>
+						<th style="vertical-align: middle;">用户名</th>
+						<td><input :value="initialPasswordInfo.userName" class="form-control" disabled></td>
+					</tr>
+					<tr>
+						<th style="vertical-align: middle;">昵称</th>
+						<td><input :value="initialPasswordInfo.nickName" class="form-control" disabled></td>
+					</tr>
+					<tr>
+						<th style="vertical-align: middle;">初始密码</th>
+						<td><input :value="initialPasswordInfo.password" class="form-control" disabled></td>
+					</tr>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-success" data-dismiss="modal">关闭 &gt;</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="resetPasswordModal" data-backdrop="static" data-keyboard="false">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -164,7 +206,30 @@
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-info" data-dismiss="modal">&lt; 放弃</button>
-				<button class="btn btn-danger" @click="toResetPasswordInfo">确认重置 &gt;</button>
+				<button class="btn btn-danger" @click="toResetPasswordInfo">确认重置密码 &gt;</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="deleteModal" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+				<h3 class="modal-title">
+					删除确认提示
+				</h3>
+			</div>
+			<div class="modal-body" style="color:#3f51b5;font-size:23px;text-align:center;">
+				请确认您需要删除<br>
+				<b>
+					<font color="#4caf50">{{deleteInfo.nickName}}({{deleteInfo.userName}})</font>
+				</b> 的账户
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-info" data-dismiss="modal">&lt; 放弃</button>
+				<button class="btn btn-danger" @click="toDelete">确认删除 &gt;</button>
 			</div>
 		</div>
 	</div>
@@ -214,6 +279,7 @@
 			'choose-item-modal': chooseItemModalVue,
 		},
 		data: {
+			banUserClass:"banUser",
 			total: 0,
 			nowPage: 1,
 			perPage: 25,
@@ -276,8 +342,18 @@
 				userName: "",
 				nickName: "",
 			},
+			deleteInfo: {
+				id: "",
+				userName: "",
+				nickName: "",
+			},
 			resetPasswordInfo: {
 				id: "",
+				userName: "",
+				nickName: "",
+			},
+			initialPasswordInfo: {
+				password: "",
 				userName: "",
 				nickName: "",
 			},
@@ -463,7 +539,20 @@
 						unlockScreen();
 
 						if (ret.code == 200) {
-							alert("操作成功！");
+							if (info.operateType === 'update') {
+								alert("操作成功！");
+							} else if (info.operateType === 'create') {
+								let initialPassword = ret.data.initialPassword;
+
+								that.initialPasswordInfo = {
+									userName: info.userName,
+									nickName: info.nickName,
+									password: initialPassword
+								};
+
+								$("#initialPasswordModal").modal("show");
+							}
+
 							that.resetCUInfo();
 							that.getList();
 						} else if (ret.tips !== '') {
@@ -483,32 +572,67 @@
 				return true;
 			},
 			toResetPasswordInfo: function () {
+				let that = this;
+				lockScreen();
+				$("#resetPasswordModal").modal("hide");
 
+				$.ajax({
+					url: window.CONFIG.rootPath + "user/resetPassword",
+					type: "post",
+					dataType: "json",
+					data: {
+						userId: that.resetPasswordInfo.id,
+						userName: that.resetPasswordInfo.userName
+					},
+					error: function (e) {
+						unlockScreen();
+						console.log(e);
+						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
+					},
+					success: function (ret) {
+						unlockScreen();
+
+						if (ret.code == 200) {
+							let initialPassword = ret.data.initialPassword;
+
+							that.initialPasswordInfo = {
+								userName: that.resetPasswordInfo.userName,
+								nickName: that.resetPasswordInfo.nickName,
+								password: initialPassword
+							};
+
+							that.resetPasswordInfo = {
+								id: "",
+								userName: "",
+								nickName: ""
+							};
+							$("#initialPasswordModal").modal("show");
+							that.getList();
+						} else if (ret.tips !== '') {
+							showModalTips(ret.tips);
+						} else {
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+						}
+					}
+				});
 			},
-			readyDelete: function (name, chineseName) {
-				this.deleteInfo.chineseName = chineseName;
-				this.deleteInfo.name = name;
-				this.deleteInfo.password = "";
+			readyDelete: function (id, userName, nickName) {
+				this.deleteInfo.id = id;
+				this.deleteInfo.userName = userName;
+				this.deleteInfo.nickName = nickName;
 
 				$("#deleteModal").modal("show");
 				return true;
 			},
 			toDelete: function () {
 				let that = this;
-				let deleteInfo = this.deleteInfo;
-
-				if (deleteInfo.password.length < 6) {
-					showModalTips("请正确输入密码");
-					return false;
-				}
+				let deleteInfo = JSON.parse(JSON.stringify(this.deleteInfo));
 
 				lockScreen();
 				$("#deleteModal").modal("hide");
 
-				delete deleteInfo.chineseName;
-
 				$.ajax({
-					url: window.CONFIG.consoleApiPath + "config/toDelete",
+					url: window.CONFIG.rootPath + "user/delete",
 					type: "post",
 					dataType: "json",
 					data: {
@@ -524,6 +648,13 @@
 
 						if (ret.code == 200) {
 							alert("删除成功！");
+
+							that.deleteInfo = {
+								id: "",
+								userName: "",
+								nickName: ""
+							};
+
 							that.getList();
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
@@ -544,21 +675,16 @@
 			},
 			toBanOrOpen: function () {
 				let that = this;
-				let info = that.modifyNameInfo;
+				let info = JSON.parse(JSON.stringify(that.BOInfo));
+				$("#BOModal").modal("hide");
 
-				if (info.newName.length < 6) {
-					showModalTips("请正确输入 [6个字符以上] 的新键名");
-					return false;
-				}
-				if (info.password.length < 6) {
-					showModalTips("请正确输入密码");
-					return false;
-				}
+				delete info.userName;
+				delete info.nickName;
 
-				delete info.chineseName;
+				info.status = (info.operateType == 'ban') ? 0 : 1;
 
 				$.ajax({
-					url: window.CONFIG.consoleApiPath + "config/toModifyName",
+					url: window.CONFIG.rootPath + "user/banOrOpen",
 					type: "post",
 					dataType: "json",
 					data: {
@@ -573,9 +699,8 @@
 						unlockScreen();
 
 						if (ret.code == 200) {
-							alert("修改成功！");
+							alert("操作成功！");
 							that.getList();
-							$("#modifyNameModal").modal("hide");
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
 						} else {

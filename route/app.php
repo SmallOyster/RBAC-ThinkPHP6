@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-R-全局路由
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-12
+ * @version 2020-07-13
  */
 
 use think\facade\Route;
@@ -11,6 +11,10 @@ use think\facade\Route;
 Route::group('user', function () {
 	Route::get('index', 'User/index');
 	Route::post('list', 'User/getList');
+	Route::post('toCU', 'User/toCU');
+	Route::post('delete', 'User/toDelete');
+	Route::post('resetPassword', 'User/toResetPassword');
+	Route::post('banOrOpen', 'User/toBanOrOpen');
 });
 
 Route::group('api', function () {

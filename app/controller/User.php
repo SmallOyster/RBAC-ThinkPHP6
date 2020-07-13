@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-12
+ * @version 2020-07-13
  */
 
 namespace app\controller;
@@ -42,7 +42,7 @@ class User extends BaseController
 		}
 
 		$countQuery = $countQuery->count('id');
-		$query = $query->order('id', 'desc')
+		$query = $query->order('create_time', 'desc')
 			->limit(($page - 1) * $perPage, $perPage)
 			->select();
 
@@ -50,12 +50,24 @@ class User extends BaseController
 	}
 
 
+	public function toDelete()
+	{
+		$deleteInfo = inputPost('deleteInfo', 0, 1);
+		$query = UserModel::where('id', $deleteInfo['id'])->delete();
+
+		if ($query === 1) return packApiData(200, 'success');
+		else return packApiData(500, 'Database error', ['error' => $query], '删除用户失败', true);
+	}
+
+
 	public function toCU()
 	{
 		$cuInfo = inputPost('cuInfo', 0, 1);
 		$cuType = $cuInfo['operate_type'];
+
 		if ($cuType == 'update') {
 			$cuInfo['update_time'] = date('Y-m-d H:i:s');
+
 			UserModel::update($cuInfo, ['id' => $cuInfo['id']], ['user_name', 'nick_name', 'phone', 'email', 'role_id', 'update_time']);
 			return packApiData(200, 'success');
 		} elseif ($cuType == 'create') {
@@ -63,10 +75,34 @@ class User extends BaseController
 			$password = mt_rand(100000, 999999);
 			$cuInfo['salt'] = getRandomStr(10);
 			$cuInfo['password'] = sha1($cuInfo['salt'] . md5($cuInfo['user_name'] . $password) . $password);
-			$query = UserModel::create($cuInfo, ['id', 'user_name', 'nick_name', 'password', 'salt', 'phone', 'email', 'role_id']);
-			return packApiData(200, 'success', ['q' => $query, 'initialPassword' => $password]);
+
+			UserModel::create($cuInfo, ['id', 'user_name', 'nick_name', 'password', 'salt', 'phone', 'email', 'role_id']);
+			return packApiData(200, 'success', ['initialPassword' => $password]);
 		} else {
 			return packApiData(5002, 'Invalid cu type', [], '非法操作行为');
 		}
+	}
+
+
+	public function toResetPassword()
+	{
+		$userId = inputPost('userId', 0, 1);
+		$userName = inputPost('userName', 0, 1);
+		$password = mt_rand(100000, 999999);
+		$salt = getRandomStr(10);
+		$hash = sha1($salt . md5($userName . $password) . $password);
+
+		UserModel::update(['password' => $hash, 'salt' => $salt, 'update_time' => date('Y-m-d H:i:s')], ['id' => $userId]);
+		return packApiData(200, 'success', ['initialPassword' => $password]);
+	}
+
+
+	public function toBanOrOpen()
+	{
+		$info = inputPost('info', 0, 1);
+		$info['update_time'] = date('Y-m-d H:i:s');
+
+		UserModel::update($info, ['id' => $info['id']], ['status', 'update_time']);
+		return packApiData(200, 'success');
 	}
 }
