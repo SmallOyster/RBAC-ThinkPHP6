@@ -17,9 +17,20 @@ Route::group('user', function () {
 	Route::post('banOrOpen', 'User/toBanOrOpen');
 });
 
+Route::group('role', function () {
+	Route::get('index', 'Role/index');
+	Route::post('list', 'Role/getList');
+	Route::post('toCU', 'Role/toCU');
+	Route::post('delete', 'Role/toDelete');
+	Route::post('setDefault', 'Role/toSetDefault');
+	Route::post('setPermission', 'Role/toSetPermission');
+});
+
+// api接口路由
 Route::group('api', function () {
 	Route::group('menu', function () {
 		Route::get('getCurrentUserMenu', 'api.Menu/getCurrentUserMenu');
+		Route::get('roleMenuForZtree', 'api.Menu/getRoleMenuForZtree');
 	});
 
 	Route::group('user', function () {
