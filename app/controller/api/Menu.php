@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-菜单接口
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-13
+ * @version 2020-07-14
  */
 
 namespace app\controller\api;
@@ -57,8 +57,41 @@ class Menu extends BaseController
 			$rtn[$key]['type'] = $info['type'];
 			$rtn[$key]['name'] = $info['name'];
 			$rtn[$key]['checked'] = in_array($info['id'], $allPermission) ? true : false;
+			$rtn[$key]['createTime'] = $info['create_time'];
+			$rtn[$key]['updateTime'] = $info['update_time'];
 		}
 
 		return packApiData(200, 'success', ['node' => $rtn]);
+	}
+
+
+	/**
+	 * 获取可适配zTree的所有菜单列表
+	 * @param string $isZtree (HTTP-GET)是否为ztree所需
+	 */
+	public function getList()
+	{
+		$isZtree = inputGet('isZtree', 1, 1);
+		$list = MenuModel::select();
+
+		if ($isZtree == 1) {
+			$key = [];
+
+			foreach ($list as $key => $info) {
+				$rtn[$key]['id'] = $info['id'];
+				$rtn[$key]['pId'] = $info['father_id'];
+				$rtn[$key]['menuIcon'] = $info['icon'];
+				$rtn[$key]['menuName'] = $info['name'];
+				$rtn[$key]['uri'] = $info['uri'];
+				$rtn[$key]['type'] = $info['type'];
+				$rtn[$key]['name'] = $info['name'];
+				$rtn[$key]['createTime'] = $info['create_time'];
+				$rtn[$key]['updateTime'] = $info['update_time'];
+			}
+
+			return packApiData(200, 'success', ['node' => $rtn]);
+		} else {
+			return packApiData(200, 'success', ['list' => $list]);
+		}
 	}
 }
