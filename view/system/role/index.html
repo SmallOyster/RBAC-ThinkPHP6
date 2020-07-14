@@ -93,7 +93,7 @@
 			getdata-event-name="getList">
 </pagination>
 
-{include file="/role/modal" /}
+{include file="/system/role/modal" /}
 
 {/block}
 
@@ -177,7 +177,7 @@
 				lockScreen();
 
 				$.ajax({
-					url: window.CONFIG.rootPath + "role/list",
+					url: window.CONFIG.rootPath + "system/role/list",
 					dataType: "json",
 					type: "post",
 					data: {
@@ -258,7 +258,7 @@
 				$("#CUModal").modal("hide");
 
 				$.ajax({
-					url: window.CONFIG.rootPath + "role/toCU",
+					url: window.CONFIG.rootPath + "system/role/toCU",
 					type: "post",
 					dataType: "json",
 					data: {
@@ -298,7 +298,7 @@
 				$("#deleteModal").modal("hide");
 
 				$.ajax({
-					url: window.CONFIG.rootPath + "role/delete",
+					url: window.CONFIG.rootPath + "system/role/delete",
 					type: "post",
 					dataType: "json",
 					data: {
@@ -336,7 +336,7 @@
 				lockScreen();
 
 				$.ajax({
-					url: window.CONFIG.rootPath + "role/setDefault",
+					url: window.CONFIG.rootPath + "system/role/setDefault",
 					type: "post",
 					dataType: "json",
 					data: {
@@ -425,7 +425,7 @@
 
 				lockScreen();
 				$.ajax({
-					url: window.CONFIG.rootPath + "role/setPermission",
+					url: window.CONFIG.rootPath + "system/role/setPermission",
 					data: {
 						permissionInfo: that.permissionInfo
 					},

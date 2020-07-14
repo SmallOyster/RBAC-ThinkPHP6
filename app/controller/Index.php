@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-首页
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-12
+ * @version 2020-07-13
  */
 
 namespace app\controller;
@@ -50,7 +50,7 @@ class Index extends BaseController
 			->toArray();
 
 		// 账户被禁用
-		if ($userInfo['status'] !== 1) return packApiData(1, 'Current account is locked');
+		if ($userInfo['status'] !== 1) return packApiData(1, 'Current account is locked', [], '当前账号被锁定', true);
 
 		// 获取角色名称
 		$roleInfo = RoleModel::field('name')
@@ -58,7 +58,7 @@ class Index extends BaseController
 			->find();
 
 		if (isset($roleInfo['name']) && $roleInfo['name']) $userInfo['roleName'] = $roleInfo['name'];
-		else return packApiData(2, 'Role info not found', ['roleId' => $userInfo['roleId']]);
+		else return packApiData(2, 'Role info not found', ['roleId' => $userInfo['roleId']], '查询角色信息失败', true);
 
 		// 设置用户信息session
 		$userInfo['userName'] = $userName;

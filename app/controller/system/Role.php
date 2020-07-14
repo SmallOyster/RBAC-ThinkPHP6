@@ -4,10 +4,10 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-角色管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-13
- * @version 2020-07-13
+ * @version 2020-07-14
  */
 
-namespace app\controller;
+namespace app\controller\system;
 
 use app\BaseController;
 use app\model\Role as RoleModel;
@@ -18,7 +18,7 @@ class Role extends BaseController
 {
 	public function index()
 	{
-		return view('/role/index');
+		return view('/system/role/index');
 	}
 
 
@@ -70,7 +70,7 @@ class Role extends BaseController
 				$html .= '<font color="#098ce8">' . $info['nick_name'] . ' (' . $info['user_name'] . ')</font><br>';
 			}
 
-			return packApiData(4001, 'This role is bound by users', ['list' => $checkUser], $html, true);
+			return packApiData(4001, 'This role is bound by users', ['list' => $checkUser], $html);
 		}
 
 		$query = RoleModel::where('id', $roleId)->delete();
