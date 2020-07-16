@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-导航栏
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-13
+ * @version 2020-07-14
  */
 ?>
 <div id="header">
@@ -33,7 +33,7 @@
 							<!-- Menu Footer-->
 							<li class="user-footer">
 								<div class="pull-left">
-									<a href="" class="btn btn-default btn-flat">用户中心</a>
+									<a :href="[rootPath+'user/index']" class="btn btn-default btn-flat">用户中心</a>
 								</div>
 								<div class="pull-right">
 									<button data-toggle="modal" data-target="#logoutModal"

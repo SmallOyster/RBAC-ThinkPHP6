@@ -1,24 +1,26 @@
 <?php
 
 /**
- * @name 生蚝科技TP6-RBAC开发框架-V-首页
+ * @name 生蚝科技TP6-RBAC开发框架-C-首页
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-13
+ * @version 2020-07-15
  */
 
 namespace app\controller;
 
-use app\BaseController;
 use think\facade\Session;
 use app\model\User as UserModel;
 use app\model\Role as RoleModel;
 
-class Index extends BaseController
+class Index
 {
 	public function index()
 	{
-		return view('/index/index');
+		return view('/index/index', [
+			'pageName' => '首页',
+			'pagePath' => []
+		]);
 	}
 
 
@@ -44,7 +46,7 @@ class Index extends BaseController
 			return packApiData(403, 'Invalid userName or password', [], '用户名或密码错误');
 		}
 
-		$userInfo = UserModel::field('id,nick_name AS nickName,role_id AS roleId,phone,email,status')
+		$userInfo = UserModel::field('id,nick_name AS nickName,role_id AS roleId,phone,email,status,create_time AS createTime')
 			->where('user_name', $userName)
 			->find()
 			->toArray();

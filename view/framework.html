@@ -65,6 +65,24 @@
 			<!-- /.Vue组件 -->
 
 			<section class="content">
+				<section class="content-header" style="padding: 15px;">
+					<h1>{$pageName}</h1>
+
+					<ol class="breadcrumb">
+						<li>
+							<a href="{:think\\facade\\Config::get('app.app_host')}">
+								<i class="fa fa-dashboard"></i>{:getSetting('appName')}
+							</a>
+						</li>
+
+						{foreach $pagePath as $name=>$url}
+						<li><a href="{:think\\facade\\Config::get('app.app_host')}{$url}">{$name}</a></li>
+						{/foreach}
+						
+						<li class="active">{$pageName}</li>
+					</ol>
+				</section>
+
 				<div id="app">
 					{block name="vueBody"} {/block}
 				</div>

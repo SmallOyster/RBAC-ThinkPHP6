@@ -4,11 +4,19 @@
  * @name 生蚝科技TP6-RBAC开发框架-R-全局路由
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-14
+ * @version 2020-07-15
  */
 
 use think\facade\Route;
 
+// 用户中心
+Route::group('user', function () {
+	Route::get('index', 'User/index');
+	Route::post('modifyProfile', 'User/modifyProfile');
+	Route::post('modifyPassword', 'User/modifyPassword');
+});
+
+// 系统管理模块
 Route::group('system', function () {
 	Route::group('user', function () {
 		Route::get('index', 'system.User/index');
@@ -33,23 +41,12 @@ Route::group('system', function () {
 		Route::post('setDefault', 'system.Role/toSetDefault');
 		Route::post('setPermission', 'system.Role/toSetPermission');
 	});
-});
 
-// api接口路由
-Route::group('api', function () {
-	Route::group('menu', function () {
-		Route::get('getCurrentUserMenu', 'api.Menu/getCurrentUserMenu');
-		Route::get('roleMenuForZtree', 'api.Menu/getRoleMenuForZtree');
-		Route::get('list', 'api.Menu/getList');
-	});
-
-	Route::group('user', function () {
-		Route::get('getCurrentUserInfo', 'api.User/getCurrentUserInfo');
-		Route::get('list', 'api.User/getList');
-	});
-
-	Route::group('role', function () {
-		Route::get('list', 'api.Role/getList');
+	Route::group('setting', function () {
+		Route::get('index', 'system.Setting/index');
+		Route::post('list', 'system.Setting/getList');
+		Route::post('toCU', 'system.Setting/toCU');
+		Route::post('delete', 'system.Setting/toDelete');
 	});
 });
 
@@ -57,3 +54,7 @@ Route::get('/', 'Index/index');
 Route::get('login', 'Index/login');
 Route::post('toLogin', 'Index/toLogin');
 Route::get('logout', 'Index/logout');
+
+Route::group('error', function () {
+	Route::get('noPermission', 'error/noPermission');
+});
