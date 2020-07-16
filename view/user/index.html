@@ -1,389 +1,171 @@
 <?php
 /**
- * @name 生蚝科技TP6-RBAC开发框架-V-用户管理
+ * @name 生蚝科技TP6-RBAC开发框架-V-用户中心
  * @author Oyster Cheung <master@xshgzs.com>
- * @since 2020-07-11
- * @version 2020-07-13
+ * @since 2020-07-14
+ * @version 2020-07-15
  */
 ?>
 
 {extend name="/framework" /}
 
-{block name='title'}用户管理 / {:getSetting('appName')}{/block}
+{block name='title'}{$pageName} / {:getSetting('appName')}{/block}
 
-{block name='pageCss'}
-<style>
-	@media (min-width: 768px) {
-		#CUModal>div {
-			width: 800px;
-		}
-	}
-
-	.banUser{
-		background-color: #ffbdbd !important;
-	}
-</style>
-{/block}
+{block name='pageCss'}{/block}
 
 {block name='vueBody'}
-<table-filter ref="filterRef"
-			  :form="filterForm"
-			  :filter-data.sync="filterData"
-			  submit-event-name="getFilterData">
-</table-filter>
 
-<div class="operateBtnGroup">
-	<button class="btn btn-primary" @click="readyCU('create')">新增用户</button>
-	<!--button class="btn">点击单行可查看该配置的备注</button-->
+<button data-toggle="modal" data-target="#updatePasswordModal" class="btn btn-block btn-warning">
+	<i class="fa fa-key" aria-hidden="true"></i> 修 改 密 码 &gt;
+</button>
+
+<br>
+
+<!-- Page main -->
+<div class="box">
+	<div class="box-body">
+		<div class="row">
+			<div class="form-group">
+				<label class="col-sm-2 col-lg-2 control-label">登录用户名 / UserName</label>
+				<div class="col-sm-10 col-lg-10">
+					<input class="form-control" :value="userInfo.userName" disabled>
+				</div>
+			</div>
+		</div><br>
+
+		<div class="row">
+			<div class="form-group">
+				<label class="col-sm-2 col-lg-2 control-label">用户昵称 / NickName</label>
+				<div class="col-sm-10 col-lg-10">
+					<input class="form-control" v-model="inputData.nickName">
+				</div>
+			</div>
+		</div><br>
+
+		<div class="row">
+			<div class="form-group">
+				<label class="col-sm-2 col-lg-2 control-label">手机号码 / Phone</label>
+				<div class="col-sm-10 col-lg-10">
+					<input type="number" class="form-control" v-model="inputData.phone">
+				</div>
+			</div>
+		</div><br>
+
+		<div class="row">
+			<div class="form-group">
+				<label class="col-sm-2 col-lg-2 control-label">邮箱地址 / Email</label>
+				<div class="col-sm-10 col-lg-10">
+					<input type="email" class="form-control" v-model="inputData.email">
+				</div>
+			</div>
+		</div><br>
+
+		<div class="row">
+			<div class="form-group">
+				<label class="col-sm-2 col-lg-2 control-label">注册日期 / Register Date</label>
+				<div class="col-sm-10 col-lg-10">
+					<input class="form-control" :value="userInfo.createTime" disabled>
+				</div>
+			</div>
+		</div>
+
+		<hr>
+
+		<center>
+			<button class="btn btn-primary" style="width:49%" onclick="history.go(-1);">&lt; 取 消 操 作</button>
+			<button class="btn btn-success" style="width:49%" @click="updateUserInfo">确 认 修 改 &gt;</button>
+		</center>
+	</div>
 </div>
 
-<div class="div_table">
-	<table id="table" class="table table-striped table-bordered table-hover"
-		   style="border-radius: 5px; border-collapse: separate;">
-		<thead style="background-color: #fff;">
-			<tr>
-				<th>ID</th>
-				<th>用户名</th>
-				<th>昵称</th>
-				<th>手机</th>
-				<th>邮箱</th>
-				<th>注册时</th>
-				<th>最后登录时</th>
-				<th>操作</th>
-			</tr>
-		</thead>
-
-		<tbody>
-			<tr v-for="info in list" :class="[info['status']===0?banUserClass:'']">
-				<td>{{info.id}}</td>
-				<td class="cell-center">{{info.user_name}}</td>
-				<td class="cell-center">{{info.nick_name}}</td>
-				<td class="cell-center">{{info.phone}}</td>
-				<td class="cell-center">{{info.email}}</td>
-				<td class="cell-center">{{info.create_time}}</td>
-				<td class="cell-center">{{info.last_login}}</td>
-				<td class="cell-button-group">
-					<div v-if="info.id!==getUserInfo().id">
-						<button class="btn btn-info"
-								@click="readyCU('update',info)">编辑</button>
-						<button class="btn btn-purple"
-								@click="readyResetPassword(info.id,info.user_name,info.nick_name)">重置密码</button>
-						<button v-if="info.status===1" class="btn btn-warning"
-								@click="readyBanOrOpen('ban',info.id,info.user_name,info.nick_name)">禁用</button>
-						<button v-else-if="info.status===0" class="btn btn-success"
-								@click="readyBanOrOpen('open',info.id,info.user_name,info.nick_name)">启用</button>
-						<button class="btn btn-danger"
-								@click="readyDelete(info.id,info.user_name,info.user_name)">删除</button>
-					</div>
-					<div v-else>
-						<font color="red">禁止操作当前用户</font>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-
-<pagination ref="pageNav"
-			:now.sync="nowPage"
-			:total="total"
-			:per-page="perPage"
-			getdata-event-name="getList">
-</pagination>
-
-<div class="modal fade" id="CUModal" data-backdrop="static" data-keyboard="false">
+<div class="modal fade" id="updatePasswordModal">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title">
-					{{ CUInfo.operateType=='create'?'新建':'修改' }}用户
-
-					<template v-if="CUInfo.operateType=='update'">
-						&nbsp;[<font color="#fb7312">
-							{{ CUInfo.showInfo.nickName }}({{ CUInfo.showInfo.userName }})
-						</font>]
-					</template>
-				</h3>
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true"></span><span
+						  class="sr-only">Close</span></button>
+				<h3 class="modal-title">修改密码</h3>
 			</div>
 			<div class="modal-body">
-				<table class="table table-striped table-bordered table-hover"
-					   style="border-radius: 5px; border-collapse: separate;">
-					<tr v-if="CUInfo.operateType==='update'">
-						<th style="vertical-align: middle;">用户ID</th>
-						<td><input :value="CUInfo.id" class="form-control" disabled></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">用户名</th>
-						<td><input v-model="CUInfo.userName" class="form-control"></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">昵称</th>
-						<td><input v-model="CUInfo.nickName" class="form-control"></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">手机</th>
-						<td><input v-model="CUInfo.phone" class="form-control"></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">邮箱</th>
-						<td><input v-model="CUInfo.email" class="form-control"></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">角色</th>
-						<td><input @click="showCheckRole"
-								   :value="allRoleList[CUInfo.roleId]" class="form-control" readonly></td>
-					</tr>
-					<tr v-if="CUInfo.operateType==='update'">
-						<th style="vertical-align: middle;">创建时间</th>
-						<td><input :value="CUInfo.showInfo.createTime" class="form-control" disabled></td>
-					</tr>
-					<tr v-if="CUInfo.operateType==='update'">
-						<th style="vertical-align: middle;">最后修改时间</th>
-						<td><input :value="CUInfo.showInfo.updateTime" class="form-control" disabled></td>
-					</tr>
-					<tr v-if="CUInfo.operateType==='update'">
-						<th style="vertical-align: middle;">最后登录时间</th>
-						<td><input :value="CUInfo.showInfo.lastLogin" class="form-control" disabled></td>
-					</tr>
-				</table>
+				<div class="row">
+					<div class="form-group">
+						<label class="col-sm-2 col-lg-2 control-label">旧密码</label>
+						<div class="col-sm-10 col-lg-10">
+							<input type="password" class="form-control" v-model="password.old">
+						</div>
+					</div>
+				</div><br>
+
+				<div class="row">
+					<div class="form-group">
+						<label class="col-sm-2 col-lg-2 control-label">新密码</label>
+						<div class="col-sm-10 col-lg-10">
+							<input type="password" class="form-control" v-model="password.new">
+						</div>
+					</div>
+				</div><br>
+
+				<div class="row">
+					<div class="form-group">
+						<label class="col-sm-2 col-lg-2 control-label">请再次输入新密码</label>
+						<div class="col-sm-10 col-lg-10">
+							<input type="password" class="form-control" v-model="password.sure">
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-primary" @click="resetCUInfo" data-dismiss="modal">&lt; 放弃</button>
-				<button class="btn btn-success" @click="toCU">确认 &gt;</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">&lt; 关闭</button>
+				<button type="button" class="btn btn-warning" @click="updatePassword">确认修改 &gt;</button>
 			</div>
 		</div>
 	</div>
 </div>
-
-<div class="modal fade" id="initialPasswordModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title">
-					初始密码
-				</h3>
-			</div>
-			<div class="modal-body">
-				<table class="table table-striped table-bordered table-hover"
-					   style="border-radius: 5px; border-collapse: separate;">
-					<tr>
-						<th style="vertical-align: middle;">用户名</th>
-						<td><input :value="initialPasswordInfo.userName" class="form-control" disabled></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">昵称</th>
-						<td><input :value="initialPasswordInfo.nickName" class="form-control" disabled></td>
-					</tr>
-					<tr>
-						<th style="vertical-align: middle;">初始密码</th>
-						<td><input :value="initialPasswordInfo.password" class="form-control" disabled></td>
-					</tr>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-success" data-dismiss="modal">关闭 &gt;</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="resetPasswordModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title">
-					重置密码确认提示
-				</h3>
-			</div>
-			<div class="modal-body" style="color:#3f51b5;font-size:23px;text-align:center;">
-				请确认您需要重置<br>
-				<b>
-					<font color="#4caf50">{{resetPasswordInfo.nickName}}({{resetPasswordInfo.userName}})</font>
-				</b> 的登录密码
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-info" data-dismiss="modal">&lt; 放弃</button>
-				<button class="btn btn-danger" @click="toResetPasswordInfo">确认重置密码 &gt;</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="deleteModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title">
-					删除确认提示
-				</h3>
-			</div>
-			<div class="modal-body" style="color:#3f51b5;font-size:23px;text-align:center;">
-				请确认您需要删除<br>
-				<b>
-					<font color="#4caf50">{{deleteInfo.nickName}}({{deleteInfo.userName}})</font>
-				</b> 的账户
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-info" data-dismiss="modal">&lt; 放弃</button>
-				<button class="btn btn-danger" @click="toDelete">确认删除 &gt;</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="BOModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-				<h3 class="modal-title">
-					操作确认提示
-				</h3>
-			</div>
-			<div class="modal-body" style="color:#3f51b5;font-size:23px;text-align:center;">
-				请确认您需要<br>
-				<b>{{ BOInfo.operateType=='ban'?'禁用':'启用'}}</b>
-				<font color="#4caf50">{{BOInfo.nickName}}({{BOInfo.userName}})</font> 的账户
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-info" data-dismiss="modal">&lt; 放弃</button>
-				<button v-if="BOInfo.operateType=='ban'" class="btn btn-danger" @click="toBanOrOpen">确认禁用 &gt;</button>
-				<button v-else-if="BOInfo.operateType=='open'" class="btn btn-success" @click="toBanOrOpen">确认启用
-					&gt;</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<choose-item-modal ref='choose'
-				   :title="chooseItemModalName"
-				   :item-list='allRoleList'
-				   :prop-checked-list="nowRole"
-				   :checked-node.sync="checkedRole"
-				   multiple="false"
-				   save-method-name="saveCheckedRole">
-</choose-item-modal>
 {/block}
 
 {block name='js'}
 <script>
 	var vm = new Vue({
 		el: '#app',
-		components: {
-			'table-filter': tableFilterVue,
-			'pagination': paginationVue,
-			'choose-item-modal': chooseItemModalVue,
-		},
-		data: {
-			banUserClass:"banUser",
-			total: 0,
-			nowPage: 1,
-			perPage: 25,
-			list: [],
-			detail: [],
-			filterForm: [
-				{
-					id: {
-						type: "input",
-						name: "ID"
-					},
-					idLast5: {
-						type: "input",
-						name: "ID后5位"
-					},
-					user_name: {
-						type: "input",
-						name: "用户名"
-					},
-				},
-				{
-					email: {
-						type: "input",
-						name: "邮箱"
-					},
-					nick_name: {
-						type: "input",
-						name: "昵称"
-					},
-					phone: {
-						type: "input",
-						name: "手机号"
-					}
-				}
-			],
-			filterData: {},
-			allRoleList: {},
-			nowRole: [],// 当前角色ID（只能有一个元素）
-			checkedRole: [],// 已选中的新角色ID
-			chooseItemModalName: "",
-			CUInfo: {
-				operateType: "",
-				showInfo: {
-					userName: "",
+		data: function () {
+			return {
+				userInfo: JSON.parse(window.sessionStorage.userInfo),
+				inputData: {
 					nickName: "",
-					createTime: "",
-					updateTime: "",
-					lastLogin: "",
-				},// 只能看不能修改
-				id: "",
-				userName: "",
-				nickName: "",
-				phone: "",
-				email: "",
-				roleId: "",
-			},
-			BOInfo: {
-				operateType: "",
-				id: "",
-				userName: "",
-				nickName: "",
-			},
-			deleteInfo: {
-				id: "",
-				userName: "",
-				nickName: "",
-			},
-			resetPasswordInfo: {
-				id: "",
-				userName: "",
-				nickName: "",
-			},
-			initialPasswordInfo: {
-				password: "",
-				userName: "",
-				nickName: "",
-			},
+					email: "",
+					phone: "",
+				},
+				password: {
+					old: "",
+					new: "",
+					sure: ""
+				},
+			}
 		},
 		methods: {
-			getUserInfo: function () {
-				return headerVm.userInfo;
-			},
-			getFilterData: function () {
-				this.getList();
-			},
-			getList: function () {
+			updateUserInfo: function () {
 				let that = this;
+				let updateData = {};
 
-				if ((this.nowPage - 1) * this.perPage > this.totalPage) {
-					showModalTips("当前页码大于数据总条数，请返回上一页！");
-					return;
+				for (i in this.inputData) {
+					if (this.inputData[i] != this.userInfo[i]) {
+						updateData[changeCamelToUnderline(i)] = this.inputData[i];
+					}
+				}
+
+				if (checkObjectNull(updateData)) {
+					showModalTips('请修改您想要修改的数据');
+					return false;
 				}
 
 				lockScreen();
-
 				$.ajax({
-					url: window.CONFIG.rootPath + "user/list",
-					dataType: "json",
+					url: window.CONFIG.rootPath + "user/modifyProfile",
 					type: "post",
 					data: {
-						filterData: that.filterData,
-						page: that.nowPage,
-						perPage: that.perPage,
+						data: updateData
 					},
+					dataType: "json",
 					error: function (e) {
 						unlockScreen();
 						console.log(e);
@@ -393,12 +175,58 @@
 						unlockScreen();
 
 						if (ret.code == 200) {
-							that.list = ret.data.list;
-							that.total = ret.data.total;
+							showModalTips("修改成功<br>资料变动将在您下次登录时呈现");
+							return true;
+						} else if (ret.tips != "") {
+							showModalTips(ret.tips);
+							return false;
+						} else {
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							return false;
+						}
+					}
+				})
+			},
+			updatePassword: function () {
+				let that = this;
+				let password = JSON.parse(JSON.stringify(this.password));
 
-							that.$refs.pageNav.totalData = that.total;
-							that.$refs.pageNav.totalPage = Math.ceil(that.total / that.perPage);
-							return;
+				if (password.old == "") {
+					showModalTips("请正确输入旧密码！");
+					return false;
+				}
+				if (password.new.length < 6 || password.new.length > 20) {
+					showModalTips("请输入6~20位的新密码！");
+					return false;
+				}
+				if (password.sure !== password.new) {
+					showModalTips("两次输入的新密码不相符！");
+					return false;
+				}
+				if (password.old == password.new) {
+					showModalTips("新密码与旧密码相同！");
+					return false;
+				}
+
+				lockScreen();
+				$.ajax({
+					url: window.CONFIG.rootPath + "user/modifyPassword",
+					type: "post",
+					data: {
+						old: that.password.old,
+						new: that.password.new
+					},
+					dataType: "json",
+					error: function (e) {
+						unlockScreen();
+						console.log(e);
+						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
+					},
+					success: function (ret) {
+						unlockScreen();
+
+						if (ret.code == 200) {
+							showModalTips("修改成功<br>请在下次登录时使用新密码");
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
 						} else {
@@ -407,332 +235,14 @@
 					}
 				})
 			},
-			getRoleList: function () {
-				let that = this;
-
-				lockScreen();
-
-				$.ajax({
-					url: window.CONFIG.apiPath + "role/list",
-					dataType: "json",
-					error: function (e) {
-						unlockScreen();
-						console.log(e);
-						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
-					},
-					success: function (ret) {
-						unlockScreen();
-
-						if (ret.code == 200) {
-							let data = ret.data.list;
-							let arr = {};
-
-							for (i in data) {
-								arr[data[i]['id']] = data[i]['name'];
-							}
-
-							that.allRoleList = arr;
-							return;
-						} else if (ret.tips !== '') {
-							showModalTips(ret.tips);
-						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
-						}
-					}
-				})
-			},
-			readyCU: function (operateType, userInfo) {
-				let that = this;
-				this.CUInfo.operateType = operateType;
-
-				if (operateType === 'update') {
-					this.CUInfo.showInfo = {
-						userName: userInfo.user_name,
-						nickName: userInfo.nick_name,
-						createTime: userInfo.create_time,
-						updateTime: userInfo.update_time,
-						lastLogin: userInfo.last_login
-					};
-					this.CUInfo.id = userInfo.id;
-					this.CUInfo.userName = userInfo.user_name;
-					this.CUInfo.nickName = userInfo.nick_name;
-					this.CUInfo.phone = userInfo.phone;
-					this.CUInfo.email = userInfo.email;
-					this.CUInfo.roleId = userInfo.role_id;
-					this.nowRole[0] = userInfo.role_id;// 自动在选择框选中当前角色
-				}
-
-				$("#CUModal").modal("show");
-				return true;
-			},
-			resetCUInfo: function () {
-				this.CUInfo = {
-					operateType: "",
-					showInfo: {
-						userName: "",
-						nickName: "",
-						createTime: "",
-						updateTime: "",
-						lastLogin: "",
-					},
-					id: "",
-					userName: "",
-					nickName: "",
-					phone: "",
-					email: "",
-					roleId: "",
-				};
-				this.nowRole = [];
-				this.checkedRole = [];
-			},
-			showCheckRole: function () {
-				this.chooseItemModalName = "请为 " + this.CUInfo.showInfo.nickName + "(" + this.CUInfo.showInfo.userName + ") 选择角色";
-				this.$refs.choose.show();
-			},
-			saveCheckedRole: function () {
-				this.CUInfo.roleId = this.checkedRole[0];
-				this.nowRole[0] = this.checkedRole[0];
-			},
-			toCU: function () {
-				let that = this;
-				let info = JSON.parse(JSON.stringify(that.CUInfo));
-
-				if (info.userName.length < 1 || info.userName.length > 20 || info.userName.match(/[^\x00-\xff]/ig) || !testUserName(info.userName)) {
-					showModalTips("请输入[1~20]位的用户名<br>仅可含有[数字/字母/下划线]");
-					return false;
-				}
-				if (info.nickName.length < 1 || info.nickName.length > 20) {
-					showModalTips("请输入[1~20]位的昵称");
-					return false;
-				}
-				if (!(/^1[3|5|6|7|8|9][0-9]\d{4,8}$/.test(info.phone))) {
-					showModalTips("请正确输入11位的中国大陆手机号");
-					return false;
-				}
-				if (!(/^([a-zA-Z\d])(\w|\-)+@[a-zA-Z\d]+\.[a-zA-Z]{2,4}$/.test(info.email))) {
-					showModalTips("请正确输入邮箱地址");
-					return false;
-				}
-				if (info.roleId.length != 36) {
-					showModalTips("请选择用户所属角色");
-					return false;
-				}
-
-				delete info.showInfo;
-
-				lockScreen();
-				$("#CUModal").modal("hide");
-
-				$.ajax({
-					url: window.CONFIG.rootPath + "user/toCU",
-					type: "post",
-					dataType: "json",
-					data: {
-						cuInfo: changeArrayKeyToUnderline(info)
-					},
-					error: function (e) {
-						unlockScreen();
-						console.log(e);
-						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
-					},
-					success: function (ret) {
-						unlockScreen();
-
-						if (ret.code == 200) {
-							if (info.operateType === 'update') {
-								alert("操作成功！");
-							} else if (info.operateType === 'create') {
-								let initialPassword = ret.data.initialPassword;
-
-								that.initialPasswordInfo = {
-									userName: info.userName,
-									nickName: info.nickName,
-									password: initialPassword
-								};
-
-								$("#initialPasswordModal").modal("show");
-							}
-
-							that.resetCUInfo();
-							that.getList();
-						} else if (ret.tips !== '') {
-							showModalTips(ret.tips);
-						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
-						}
-					}
-				});
-			},
-			readyResetPassword: function (id, userName, nickName) {
-				this.resetPasswordInfo.id = id;
-				this.resetPasswordInfo.userName = userName;
-				this.resetPasswordInfo.nickName = nickName;
-
-				$("#resetPasswordModal").modal("show");
-				return true;
-			},
-			toResetPasswordInfo: function () {
-				let that = this;
-				lockScreen();
-				$("#resetPasswordModal").modal("hide");
-
-				$.ajax({
-					url: window.CONFIG.rootPath + "user/resetPassword",
-					type: "post",
-					dataType: "json",
-					data: {
-						userId: that.resetPasswordInfo.id,
-						userName: that.resetPasswordInfo.userName
-					},
-					error: function (e) {
-						unlockScreen();
-						console.log(e);
-						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
-					},
-					success: function (ret) {
-						unlockScreen();
-
-						if (ret.code == 200) {
-							let initialPassword = ret.data.initialPassword;
-
-							that.initialPasswordInfo = {
-								userName: that.resetPasswordInfo.userName,
-								nickName: that.resetPasswordInfo.nickName,
-								password: initialPassword
-							};
-
-							that.resetPasswordInfo = {
-								id: "",
-								userName: "",
-								nickName: ""
-							};
-							$("#initialPasswordModal").modal("show");
-							that.getList();
-						} else if (ret.tips !== '') {
-							showModalTips(ret.tips);
-						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
-						}
-					}
-				});
-			},
-			readyDelete: function (id, userName, nickName) {
-				this.deleteInfo.id = id;
-				this.deleteInfo.userName = userName;
-				this.deleteInfo.nickName = nickName;
-
-				$("#deleteModal").modal("show");
-				return true;
-			},
-			toDelete: function () {
-				let that = this;
-				let deleteInfo = JSON.parse(JSON.stringify(this.deleteInfo));
-
-				lockScreen();
-				$("#deleteModal").modal("hide");
-
-				$.ajax({
-					url: window.CONFIG.rootPath + "user/delete",
-					type: "post",
-					dataType: "json",
-					data: {
-						deleteInfo: deleteInfo
-					},
-					error: function (e) {
-						unlockScreen();
-						console.log(e);
-						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
-					},
-					success: function (ret) {
-						unlockScreen();
-
-						if (ret.code == 200) {
-							alert("删除成功！");
-
-							that.deleteInfo = {
-								id: "",
-								userName: "",
-								nickName: ""
-							};
-
-							that.getList();
-						} else if (ret.tips !== '') {
-							showModalTips(ret.tips);
-						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
-						}
-					}
-				})
-			},
-			readyBanOrOpen: function (operateType, id, userName, nickName) {
-				this.BOInfo.operateType = operateType;
-				this.BOInfo.id = id;
-				this.BOInfo.userName = userName;
-				this.BOInfo.nickName = nickName;
-
-				$("#BOModal").modal("show");
-				return true;
-			},
-			toBanOrOpen: function () {
-				let that = this;
-				let info = JSON.parse(JSON.stringify(that.BOInfo));
-				$("#BOModal").modal("hide");
-
-				delete info.userName;
-				delete info.nickName;
-
-				info.status = (info.operateType == 'ban') ? 0 : 1;
-
-				$.ajax({
-					url: window.CONFIG.rootPath + "user/banOrOpen",
-					type: "post",
-					dataType: "json",
-					data: {
-						info: info
-					},
-					error: function (e) {
-						unlockScreen();
-						console.log(e);
-						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
-					},
-					success: function (ret) {
-						unlockScreen();
-
-						if (ret.code == 200) {
-							alert("操作成功！");
-							that.getList();
-						} else if (ret.tips !== '') {
-							showModalTips(ret.tips);
-						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
-						}
-					}
-				})
-			}
 		},
 		mounted() {
-			this.getList();
-			this.getRoleList();
+			this.inputData = {
+				nickName: this.userInfo.nickName,
+				email: this.userInfo.email,
+				phone: this.userInfo.phone,
+			}
 		},
 	});
-
-	function testUserName(txt) {
-		r = new RegExp("[\\u4E00-\\u9FFF]+", "g");
-		eng = new RegExp("[a-zA-Z]");
-		engtest = eng.test(txt);
-
-		if (r.test(txt)) {
-			return false;
-		} else {
-			r = new RegExp(/^[\w]+$/);
-
-			if (!r.test(txt)) {
-				return false;
-			} else {
-				if (!engtest) return false;
-				else return true;
-			}
-		}
-	}
 </script>
 {/block}
