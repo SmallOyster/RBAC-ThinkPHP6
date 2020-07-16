@@ -41,7 +41,7 @@ class ExceptionHandle extends Handle
 	public function report(Throwable $exception): void
 	{
 		// 使用内置的方式记录异常日志
-		parent::report($exception);
+		// parent::report($exception);
 	}
 
 	/**

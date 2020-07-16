@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>温馨提示</title>
+	<title>温馨提示 / <?=getSetting('appName');?></title>
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="stylesheet" href="https://cdn.bootcss.com/weui/2.1.2/style/weui.min.css">
@@ -14,25 +14,15 @@
 	<div class="page">
 		<div class="weui-msg">
 			<div class="weui-msg__icon-area">
-				{if $status == 'success' }
-				<i class="weui-icon-success weui-icon_msg"></i>
-				{elseif $status == 'wait' /}
-				<i class="weui-icon-waiting weui-icon_msg"></i>
-				{elseif $status == 'error' /}
-				<i class="weui-icon-warn weui-icon_msg"></i>
-				{else /}
 				<i class="weui-icon-warn weui-icon_msg-primary"></i>
-				{/if}
 			</div>
 			<div class="weui-msg__text-area">
-				<h2 class="weui-msg__title">温馨提示</h2>
-				<p class="weui-msg__desc">
-					{$errorTips|raw}
-				</p>
+				<p class="weui-msg__title" style="font-size: 25px;">温馨提示</p>
+				<p class="weui-msg__desc" style="font-size: 22px;"><?=$message;?></p>
 			</div>
 			<div class="weui-msg__opr-area">
 				<p class="weui-btn-area">
-					<a href="/webapp" class="weui-btn weui-btn_primary">返回上一页</a>
+					<a onclick="history.go(-1);" class="weui-btn weui-btn_primary">返回上一页</a>
 				</p>
 			</div>
 			<div class="weui-msg__tips-area">
@@ -40,14 +30,15 @@
 			<div class="weui-msg__extra-area">
 				<div class="weui-footer">
 					<p class="weui-footer__links">
-						<a class="weui-footer__link" href="https://xshgzs.com?from=xd" target="_blank">生蚝科技首页</a>
+						<a class="weui-footer__link" style="font-size: 19px;line-height: 37px;"
+						   href="https://www.xshgzs.com" target="_blank">生蚝科技首页</a>
 					</p>
-					<!--p class="weui-footer__text">Copyright &copy; </p-->
+					<p class="weui-footer__text" style="font-size: 18px;">&copy; <?=getSetting('companyName');?>
+						<?=getSetting('companyCreateYear');?>-<?=date('Y');?></p>
 				</div>
 			</div>
 		</div>
 	</div>
-
 </body>
 
 </html>

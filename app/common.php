@@ -28,13 +28,13 @@ function getSetting($configName = '')
  * @return boolean 密码是否有效
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-12
+ * @version 2020-07-16
  */
 function checkPassword($userName = '', $password = '')
 {
-	$userInfo = \app\model\User::where('user_name', $userName)->find()->toArray();
+	$userInfo = \app\model\User::where('user_name', $userName)->find();
 
-	if (count($userInfo) <= 0) return false;
+	if (!isset($userInfo['password'])) return false;
 
 	if (sha1($userInfo['salt'] . md5($userName . $password) . $password) === $userInfo['password']) return true;
 	else return false;
