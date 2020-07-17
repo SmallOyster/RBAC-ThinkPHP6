@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-登录
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-12
+ * @version 2020-07-16
  */
 ?>
 
@@ -11,39 +11,25 @@
 <html>
 
 <head>
-
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="author" content="Oyster Cheung">
-
 	<title>登录 / {:getSetting('appName')}</title>
 
-	<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdn.bootcss.com/admin-lte/2.4.8/css/AdminLTE.min.css">
-	<link rel="stylesheet" href="https://cdn.bootcss.com/datatables/1.10.19/css/dataTables.bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdn.bootcss.com/zTree.v3/3.5.28/css/zTreeStyle/zTreeStyle.min.css">
-	<link rel="stylesheet" href="https://static.xshgzs.com/css/adminlte_cyan.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/admin-lte/2.4.8/css/AdminLTE.min.css">
 	<link rel="stylesheet" href="https://static.xshgzs.com/css/loading.css">
 
-	<link rel="stylesheet" href="{:think\\facade\\Config::get('app.app_host')}/public/css/console.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/fontawesome.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/solid.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/brands.min.css">
 
-	<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.0/css/fontawesome.min.css">
-	<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.0/css/solid.min.css">
-	<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.0/css/brands.min.css">
-
-	<script src="https://cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/jquery/3.1.0/jquery.min.js"></script>
 	<!-- 开发环境版本，包含了有帮助的命令行警告 -->
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="https://cdn.bootcss.com/admin-lte/2.4.8/js/adminlte.min.js"></script>
-	<script src="https://cdn.bootcss.com/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.bootcss.com/datatables/1.10.16/js/dataTables.bootstrap.min.js"></script>
-	<script src="https://cdn.bootcss.com/zTree.v3/3.5.28/js/jquery.ztree.core.min.js"></script>
-	<script src="https://cdn.bootcss.com/zTree.v3/3.5.28/js/jquery.ztree.excheck.min.js"></script>
-	<script src="https://cdn.bootcss.com/zTree.v3/3.5.28/js/jquery.ztree.exedit.min.js"></script>
-	<script src="https://cdn.bootcss.com/zTree.v3/3.5.33/js/jquery.ztree.exhide.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdn.staticfile.org/admin-lte/2.4.8/js/adminlte.min.js"></script>
 
-	<script src="https://static.xshgzs.com/js/dataTables.responsive.js"></script>
 	<script src="https://static.xshgzs.com/js/utils.js"></script>
-
 	<script src="{:think\\facade\\Config::get('app.app_host')}/public/js/config.js"></script>
 
 	<style>
@@ -56,7 +42,7 @@
 <body style="background-color: #66CCFF;">
 	<div class="container">
 		<div class="col-md-6 col-md-offset-3">
-			<!--center><img src="" style="display: inline-block;height: auto;max-width: 100%;"></center><br-->
+			<center><img src="{:getSetting('companyLogo')}" style="display: inline-block;height: auto;max-width: 100%;"></center><br>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h3 class="panel-title" style="text-align:center;line-height:23px;">
@@ -71,10 +57,11 @@
 					<br>
 					<div class="form-group">
 						<label for="password">密码</label>
-						<!--a href="" target="_blank">（忘记密码 Forget Password）</a-->
+						<a href="forgetPassword" target="_blank">（忘记密码 Forget Password）</a>
 						<input class="form-control" placeholder="密码 / Password" id="password" type="password"
 							   onkeyup='if(event.keyCode==13)toLogin();'>
 					</div>
+
 					<div class="checkbox">
 						<label for="Remember">
 							<input type="checkbox" id="Remember">记住用户名
@@ -96,12 +83,6 @@
 			&copy; <a href="{:getSetting('homepageUrl')}" target="_blank"
 			   style="font-size:21px;">{:getSetting('companyName')}</a>
 			{:getSetting('companyCreateYear')}-{:date('Y')}
-			<a style="color:#07C160" onclick='showWXCode()'><i class="fab fa-weixin fa-lg" aria-hidden="true"></i></a>
-			<a style="color:#FF7043" onclick='launchQQ()'><i class="fab fa-qq fa-lg" aria-hidden="true"></i></a>
-			<a style="color:#29B6F6" href="mailto:master@xshgzs.com"><i class="fas fa-envelope fa-lg"
-				   aria-hidden="true"></i></a>
-			<a style="color:#AB47BC" href="https://github.com/OysterTech" target="_blank"><i class="fab fa-github fa-lg"
-				   aria-hidden="true"></i></a>
 
 			<br>
 
@@ -114,20 +95,6 @@
 
 	<script>
 		var isAjaxing = 0;// 防止重复登录
-
-		function launchQQ() {
-			if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
-				window.location.href = "mqqwpa://im/chat?chat_type=wpa&uin=571339406";
-			} else {
-				window.open("http://wpa.qq.com/msgrd?v=3&uin=571339406");
-			}
-		}
-
-
-		function showWXCode() {
-			$("#wxModal").modal('show');
-		}
-
 
 		// 监听模态框关闭事件
 		$(function () {
@@ -206,7 +173,7 @@
 					$("#password").removeAttr("disabled");
 
 					if (ret.code == 200) {
-						sessionStorage.setItem("userInfo",JSON.stringify(ret.data.userInfo));
+						sessionStorage.setItem("userInfo", JSON.stringify(ret.data.userInfo));
 
 						// 如果有重定向地址且base64有效
 						if (getURLParam("redirect") != null) {
