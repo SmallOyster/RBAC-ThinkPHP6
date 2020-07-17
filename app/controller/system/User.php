@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-13
+ * @version 2020-07-15
  */
 
 namespace app\controller\system;
@@ -16,7 +16,10 @@ class User extends BaseController
 {
 	public function index()
 	{
-		return view('/system/user/index');
+		return view('/system/user/index', [
+			'pageName' => '用户管理',
+			'pagePath' => []
+		]);
 	}
 
 

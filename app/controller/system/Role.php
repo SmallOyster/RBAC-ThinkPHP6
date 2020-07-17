@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-角色管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-13
- * @version 2020-07-14
+ * @version 2020-07-15
  */
 
 namespace app\controller\system;
@@ -18,7 +18,10 @@ class Role extends BaseController
 {
 	public function index()
 	{
-		return view('/system/role/index');
+		return view('/system/role/index', [
+			'pageName' => '角色管理',
+			'pagePath' => []
+		]);
 	}
 
 
