@@ -122,7 +122,7 @@ function getIP()
  * @since 2019-11-17
  * @version 2020-05-30
  */
-function packApiData($code = 0, $message = '',  $data = [],  $tips = '',  $needLog = false,  $isDie = false)
+function packApiData($code = 0, $message = '',  $data = [],  $tips = '',  $needLog = true,  $isDie = false)
 {
 	$reqId = makeUUID();
 

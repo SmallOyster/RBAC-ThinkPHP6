@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-角色管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-13
- * @version 2020-07-15
+ * @version 2020-07-21
  */
 
 namespace app\controller\system;
@@ -51,7 +51,7 @@ class Role extends BaseController
 			->limit(($page - 1) * $perPage, $perPage)
 			->select();
 
-		return packApiData(200, 'success', ['total' => $countQuery, 'list' => $query]);
+		return packApiData(200, 'success', ['total' => $countQuery, 'list' => $query], '', false);
 	}
 
 
@@ -83,7 +83,7 @@ class Role extends BaseController
 			RolePermissionModel::where('role_id', $roleId)->delete();
 			return packApiData(200, 'success');
 		} else {
-			return packApiData(500, 'Database error', ['error' => $query], '删除角色失败', true);
+			return packApiData(500, 'Database error', ['error' => $query], '删除角色失败');
 		}
 	}
 
@@ -101,7 +101,7 @@ class Role extends BaseController
 			RoleModel::create($cuInfo, ['id', 'name', 'remark']);
 			return packApiData(200, 'success');
 		} else {
-			return packApiData(5002, 'Invalid cu type', [], '非法操作行为', true);
+			return packApiData(5002, 'Invalid cu type', [], '非法操作行为');
 		}
 	}
 
@@ -129,7 +129,7 @@ class Role extends BaseController
 		// 清空原有权限
 		$clearOrigin = RolePermissionModel::where('role_id', $roleId)->delete();
 
-		if ($clearOrigin <= 0) return packApiData(4001, 'Failed to clear original permission', [], '清空此角色原有权限失败', true);
+		if ($clearOrigin <= 0) return packApiData(4001, 'Failed to clear original permission', [], '清空此角色原有权限失败');
 
 		$insertData = [];
 		foreach ($node as $menuId) {
@@ -143,6 +143,6 @@ class Role extends BaseController
 		$query = $modelObj->saveAll($insertData);
 
 		if (count($node) === count($query)) return packApiData(200, 'success', ['total' => count($query)]);
-		else return packApiData(4002, 'Success-total cannot match node-total', ['success' => count($query), 'node' => count($node)], '成功授权数与原请求节点数不相符<hr>成功数：' . count($query) . '<br>原请求节点数：' . count($node), true);
+		else return packApiData(4002, 'Success-total cannot match node-total', ['success' => count($query), 'node' => count($node)], '成功授权数与原请求节点数不相符<hr>成功数：' . count($query) . '<br>原请求节点数：' . count($node));
 	}
 }

@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-菜单管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-14
- * @version 2020-07-15
+ * @version 2020-07-21
  */
 
 namespace app\controller\system;
@@ -38,7 +38,7 @@ class Menu extends BaseController
 			MenuModel::create($cuInfo, ['id', 'father_id', 'name', 'icon', 'uri']);
 			return packApiData(200, 'success');
 		} else {
-			return packApiData(5002, 'Invalid cu type', [], '非法操作行为', true);
+			return packApiData(5002, 'Invalid cu type', [], '非法操作行为');
 		}
 	}
 
@@ -77,7 +77,7 @@ class Menu extends BaseController
 			RolePermissionModel::where('menu_id', $menuId)->delete();
 			return packApiData(200, 'success');
 		} else {
-			return packApiData(500, 'Database error', ['error' => $query], '删除菜单失败', true);
+			return packApiData(500, 'Database error', ['error' => $query], '删除菜单失败');
 		}
 	}
 }

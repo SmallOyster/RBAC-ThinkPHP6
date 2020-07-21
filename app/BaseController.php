@@ -57,7 +57,7 @@ abstract class BaseController
 	protected function initialize()
 	{
 		// 先判断是否已登录
-		if (!Session::has('userInfo.roleId')) $this->noPermission(1);
+		if (!Session::has('userInfo.id')) $this->noPermission(1);
 
 		// 再判断是否有权限
 		$uri = $this->request->baseUrl();

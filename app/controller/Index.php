@@ -53,7 +53,7 @@ class Index
 			->toArray();
 
 		// 账户被禁用
-		if ($userInfo['status'] !== 1) return packApiData(1, 'Current account is locked', [], '当前账号被锁定', true);
+		if ($userInfo['status'] !== 1) return packApiData(1, 'Current account is locked', [], '当前账号被锁定');
 
 		// 获取角色名称
 		$roleInfo = RoleModel::field('name')
@@ -61,7 +61,7 @@ class Index
 			->find();
 
 		if (isset($roleInfo['name']) && $roleInfo['name']) $userInfo['roleName'] = $roleInfo['name'];
-		else return packApiData(2, 'Role info not found', ['roleId' => $userInfo['roleId']], '查询角色信息失败', true);
+		else return packApiData(2, 'Role info not found', ['roleId' => $userInfo['roleId']], '查询角色信息失败');
 
 		// 设置用户信息session
 		$userInfo['userName'] = $userName;

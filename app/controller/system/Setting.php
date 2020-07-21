@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-系统配置管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-15
- * @version 2020-07-16
+ * @version 2020-07-21
  */
 
 namespace app\controller\system;
@@ -45,7 +45,7 @@ class Setting extends BaseController
 		$sql .= ' s.create_user_id=u1.id AND s.update_user_id=u2.id ORDER BY name LIMIT ' . ($page - 1) * $perPage . ',' . $perPage;
 		$query = \think\facade\Db::query($sql, $conditionData);
 
-		return packApiData(200, 'success', ['total' => $countQuery, 'list' => $query]);
+		return packApiData(200, 'success', ['total' => $countQuery, 'list' => $query], '', false);
 	}
 
 
@@ -55,18 +55,15 @@ class Setting extends BaseController
 		$cuType = $cuInfo['operate_type'];
 
 		if ($cuType == 'update') {
-			$cuInfo['update_user_id'] = Session::get('userInfo.id');
 			$cuInfo['update_ip'] = getIP();
 
-			SettingModel::update($cuInfo, ['id' => $cuInfo['id']], ['chinese_name', 'value', 'remark', 'update_user_id', 'update_ip']);
+			SettingModel::update($cuInfo, ['id' => $cuInfo['id']], ['chinese_name', 'value', 'remark', 'update_ip']);
 			return packApiData(200, 'success');
 		} elseif ($cuType == 'create') {
-			$cuInfo['create_user_id'] = Session::get('userInfo.id');
 			$cuInfo['create_ip'] = getIP();
-			$cuInfo['update_user_id'] = Session::get('userInfo.id');
 			$cuInfo['update_ip'] = getIP();
 
-			SettingModel::create($cuInfo, ['name', 'chinese_name', 'value', 'remark', 'create_user_id', 'create_ip', 'update_user_id', 'update_ip']);
+			SettingModel::create($cuInfo, ['name', 'chinese_name', 'value', 'remark', 'create_ip', 'update_ip']);
 			return packApiData(200, 'success');
 		} else {
 			return packApiData(5002, 'Invalid cu type', [], '非法操作行为');
@@ -83,6 +80,6 @@ class Setting extends BaseController
 		$query = SettingModel::where('id', $deleteInfo['id'])->delete();
 
 		if ($query === 1) return packApiData(200, 'success');
-		else return packApiData(500, 'Database error', ['error' => $query], '删除配置项失败', true);
+		else return packApiData(500, 'Database error', ['error' => $query], '删除配置项失败');
 	}
 }
