@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-15
+ * @version 2020-07-21
  */
 ?>
 
@@ -181,6 +181,7 @@
 				id: "",
 				userName: "",
 				nickName: "",
+				password: "",
 			},
 			initialPasswordInfo: {
 				password: "",
@@ -397,14 +398,20 @@
 				this.resetPasswordInfo.id = id;
 				this.resetPasswordInfo.userName = userName;
 				this.resetPasswordInfo.nickName = nickName;
+				this.resetPasswordInfo.password = "";
 
 				$("#resetPasswordModal").modal("show");
 				return true;
+			},
+			generateNewPassword: function () {
+				this.resetPasswordInfo.password = (parseInt((Math.random() + 1) * Math.pow(10, 6))) - 1000000 + "";
 			},
 			toResetPasswordInfo: function () {
 				let that = this;
 				lockScreen();
 				$("#resetPasswordModal").modal("hide");
+
+				if (this.resetPasswordInfo.password == "") this.generateNewPassword();
 
 				$.ajax({
 					url: window.CONFIG.rootPath + "system/user/resetPassword",
@@ -412,7 +419,8 @@
 					dataType: "json",
 					data: {
 						userId: that.resetPasswordInfo.id,
-						userName: that.resetPasswordInfo.userName
+						userName: that.resetPasswordInfo.userName,
+						password: that.resetPasswordInfo.password
 					},
 					error: function (e) {
 						unlockScreen();
@@ -434,7 +442,8 @@
 							that.resetPasswordInfo = {
 								id: "",
 								userName: "",
-								nickName: ""
+								nickName: "",
+								password: "",
 							};
 							$("#initialPasswordModal").modal("show");
 							that.getList();

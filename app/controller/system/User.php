@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-15
+ * @version 2020-07-21
  */
 
 namespace app\controller\system;
@@ -59,7 +59,7 @@ class User extends BaseController
 		$query = UserModel::where('id', $deleteInfo['id'])->delete();
 
 		if ($query === 1) return packApiData(200, 'success');
-		else return packApiData(500, 'Database error', ['error' => $query], '删除用户失败', true);
+		else return packApiData(500, 'Database error', ['error' => $query], '删除用户失败');
 	}
 
 
@@ -91,7 +91,8 @@ class User extends BaseController
 	{
 		$userId = inputPost('userId', 0, 1);
 		$userName = inputPost('userName', 0, 1);
-		$password = mt_rand(100000, 999999);
+		$password = inputPost('password', 0, 1);
+		
 		$salt = getRandomStr(10);
 		$hash = sha1($salt . md5($userName . $password) . $password);
 
