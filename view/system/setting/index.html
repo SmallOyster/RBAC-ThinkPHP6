@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-系统配置管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-15
- * @version 2020-07-15
+ * @version 2020-08-01
  */
 ?>
 
@@ -42,9 +42,7 @@
 				<th>配置值</th>
 				<th>备注</th>
 				<th>创建时间</th>
-				<th>创建人昵称</th>
 				<th>最后修改时间</th>
-				<th>修改人昵称</th>
 				<th>操作</th>
 			</tr>
 		</thead>
@@ -56,9 +54,7 @@
 				<td>{{info.value}}</td>
 				<td>{{info.remark}}</td>
 				<td class="cell-center">{{info.create_time}}</td>
-				<td class="cell-center">{{info.create_nick_name}}</td>
 				<td class="cell-center">{{info.update_time}}</td>
-				<td class="cell-center">{{info.update_nick_name}}</td>
 				<td class="cell-button-group">
 					<button class="btn btn-info"
 							@click="readyCU('update',info)">编辑</button>
@@ -88,7 +84,6 @@
 		components: {
 			'table-filter': tableFilterVue,
 			'pagination': paginationVue,
-			'choose-item-modal': chooseItemModalVue,
 		},
 		data: {
 			total: 0,
@@ -114,10 +109,8 @@
 					chineseName: "",
 					createTime: "",
 					createIP: "",
-					createNickName: "",
 					updateTime: "",
 					updateIP: "",
-					updateNickName: "",
 				},// 只能看不能修改
 				id: "",
 				name: "",
@@ -186,10 +179,8 @@
 						chineseName: info.chinese_name,
 						createTime: info.create_time,
 						createIP: info.create_ip,
-						createNickName: info.create_nick_name,
 						updateTime: info.update_time,
 						updateIP: info.update_ip,
-						updateNickName: info.update_nick_name,
 					};
 					this.CUInfo.id = info.id;
 					this.CUInfo.name = info.name;

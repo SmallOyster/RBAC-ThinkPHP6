@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-系统配置管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-15
- * @version 2020-07-21
+ * @version 2020-08-01
  */
 
 namespace app\controller\system;
@@ -31,19 +31,17 @@ class Setting extends BaseController
 		$filterData = inputPost('filterData', 1, 1) ?: [];
 
 		$countQuery = new SettingModel;
-		$sql = 'SELECT s.*,u1.nick_name AS create_nick_name,u2.nick_name AS update_nick_name FROM setting s,user u1,user u2 WHERE 1=1 AND ';
-		$conditionData = [];
+		$query = SettingModel::field('*');
 
 		foreach ($filterData as $key => $value) {
 			$countQuery = $countQuery->where($key, $value);
-			$sql .= 'set.' . $key . '=:' . $key . ' AND ';
-			$conditionData[$key] = $value;
+			$query = $query->where($key, $value);
 		}
 
 		$countQuery = $countQuery->count('id');
-
-		$sql .= ' s.create_user_id=u1.id AND s.update_user_id=u2.id ORDER BY name LIMIT ' . ($page - 1) * $perPage . ',' . $perPage;
-		$query = \think\facade\Db::query($sql, $conditionData);
+		$query = $query->order('name')
+			->limit(($page - 1) * $perPage, $perPage)
+			->select();
 
 		return packApiData(200, 'success', ['total' => $countQuery, 'list' => $query], '', false);
 	}
