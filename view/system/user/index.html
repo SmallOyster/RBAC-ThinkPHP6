@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-21
+ * @version 2020-08-01
  */
 ?>
 
@@ -92,7 +92,7 @@
 
 {include file="/system/user/modal" /}
 
-<choose-item-modal ref='choose'
+<choose-item-modal ref='choose' modal-id="page"
 				   :title="chooseItemModalName"
 				   :item-list='allRoleList'
 				   :prop-checked-list="nowRole"

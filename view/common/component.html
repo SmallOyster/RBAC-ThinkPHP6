@@ -1,5 +1,5 @@
 <!-- 多选模态框 -->
-<!-- @Oyster Cheung(20200105-20200501) -->
+<!-- @Oyster Cheung(20200105-20200801) -->
 <style>
 	.select-picker {
 		padding: 10px;
@@ -49,7 +49,7 @@
 </style>
 
 <template id="choose-item-template">
-	<div class="modal fade bs-example-modal-lg" id="chooseItemModalMain">
+	<div class="modal fade bs-example-modal-lg" :id="['chooseItemModalMain_'+modalId]">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -97,6 +97,7 @@
 	var chooseItemModalVue = {
 		template: '#choose-item-template',
 		props: [
+			'modalId',
 			'title',// 模态框标题
 			'itemList',// 节点列表（一维id:name）
 			'propCheckedList',// 默认选中的节点列表
@@ -115,7 +116,7 @@
 				this.$emit('update:checked-node', this.checkedList);
 				this.$parent[this.saveMethodName]();
 
-				$("#chooseItemModalMain").modal('hide');
+				$("#chooseItemModalMain_" + that.modalId).modal('hide');
 			},
 			filterData: function () {
 				if (this.filterText == "") {
@@ -132,10 +133,11 @@
 				}
 			},
 			show: function () {
+				let that = this;
 				// 第二次调用时要更新节点列表
 				this.checkedList = this.propCheckedList;
 
-				$("#chooseItemModalMain").modal('show');
+				$("#chooseItemModalMain_" + that.modalId).modal('show');
 				return true;
 			},
 			checked: function (id) {
@@ -160,7 +162,7 @@
 			},
 			close: function () {
 				this.clearAll();
-				$("#chooseItemModalMain").modal('hide');
+				$("#chooseItemModalMain_" + that.modalId).modal('hide');
 			}
 		}
 	};
@@ -169,7 +171,7 @@
 
 
 <!-- 数据表头筛选组 -->
-<!-- @Oyster Cheung(20200531-20200725) -->
+<!-- @Oyster Cheung(20200531-20200801) -->
 <style>
 	.table-filter-group div {
 		padding-left: 100px;
@@ -240,7 +242,7 @@
 			<button @click="reset" class="btn btn-info"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
 		</div>
 
-		<choose-item-modal ref='choose'
+		<choose-item-modal ref="tableFilterChooseModal" modal-id="filter"
 						   :title="chooseItemModal.chooseItemModalName"
 						   :item-list='chooseItemModal.nodeList'
 						   :prop-checked-list="chooseItemModal.nowNode"
@@ -316,7 +318,7 @@
 				this.chooseItemModal.nodeId = id;
 				this.chooseItemModal.nodeList = nodeList;
 				this.chooseItemModal.isMultiple = isMultiple;
-				this.$refs.choose.show();
+				this.$refs.tableFilterChooseModal.show();
 			},
 			saveChecked: function () {
 				this.formData[this.chooseItemModal.nodeId] = this.chooseItemModal.checkedId;
@@ -434,7 +436,7 @@
 
 
 <!-- 文件统一上传模态框 -->
-<!-- @Oyster Cheung(20200722-20200724) -->
+<!-- @Oyster Cheung(20200722-20200730) -->
 <template id="unified-upload-modal-template">
 	<div class="modal fade" id="uploadModal" style="z-index:99990">
 		<div class="modal-dialog">
@@ -444,6 +446,9 @@
 					<h3 class="modal-title" id="uploadTitle">上传{{title}}文件</h3>
 				</div>
 				<div class="modal-body">
+					<div class="progress">
+						<div class="progress-bar progress-bar-striped active" id="uploadProgressBar"></div>
+					</div>
 					<form method="post" enctype="multipart/form-data">
 						<div v-if="max>0">
 							<div v-for="i in parseInt(max)" class="input-group" style="margin-bottom: 8px;">
@@ -485,6 +490,15 @@
 		data: function () {
 			return {
 				url: [],
+				upload: {
+					clock: null,
+					cuttingLength: 1024 * 1024 * 1, // 每次上传的大小
+					start: 0, // 每次上传的开始字节
+					end: 1024 * 1024 * 1, // 每次上传的结尾字节
+					sending: false, // 是否正在上传
+					blob: null, // 二进制对象
+					percent: 0,
+				}
 			}
 		},
 		computed: {
@@ -501,7 +515,10 @@
 				$("input[id^='uploadShowUrl_']").val("");
 				$("input[id^='uploadForm_']").removeAttr("disabled");
 				$("button[id^='uploadBtn_']").show();
+				$("button[id^='uploadBtn_']").removeAttr("disabled");
 				$("button[id^='uploadAgainBtn_']").hide();
+				$("#uploadProgressBar").attr("style", "width:0%");
+				$("#uploadProgressBar").attr("class", "progress-bar progress-bar-striped active");
 
 				let i = 0;
 				while (i < this.max) {
@@ -509,9 +526,40 @@
 					i++;
 				}
 
+				this.upload = {
+					clock: null,
+					cuttingLength: 1024 * 1024 * 1, // 每次上传的大小
+					start: 0, // 每次上传的开始字节
+					end: 1024 * 1024 * 1, // 每次上传的结尾字节
+					sending: false, // 是否正在上传
+					blob: null, // 二进制对象
+					percent: 0,
+				}
+
 				$("#uploadModal").modal("show");
 			},
 			toUpload: function (i) {
+				let that = this;
+
+				this.upload = {
+					clock: null,
+					cuttingLength: 1024 * 1024 * 1, // 每次上传的大小
+					start: 0, // 每次上传的开始字节
+					end: 1024 * 1024 * 1, // 每次上传的结尾字节
+					sending: false, // 是否正在上传
+					blob: null, // 二进制对象
+					percent: 0,
+				}
+
+				$("#uploadProgressBar").attr("style", "width:0%");
+				$("#uploadProgressBar").attr("class", "progress-bar progress-bar-striped active");
+
+				$("#uploadBtn_" + i).attr("disabled", true);
+				lockScreen();
+
+				this.upload.clock = setInterval(function () { that.toUpload2(i) }, 1000);
+			},
+			toUpload2: function (i) {
 				let that = this;
 				let file = document.getElementById('uploadForm_' + i).files[0];
 
@@ -521,39 +569,57 @@
 				}
 
 				// 获取扩展名
-				extensionIndex = file.name.lastIndexOf("\.");
-				extension = file.name.substring(extensionIndex + 1, file.name.length);
+				extension = file.name.substring(file.name.lastIndexOf("\.") + 1, file.name.length);
 
 				if (this.sizeLimit > 0 && file.size > this.sizeLimit) {
+					clearInterval(this.upload.clock);
 					showModalTips("文件大小超出限制");
 					return false;
 				}
 				if (this.extensionLimitArr !== [] && $.inArray(extension, this.extensionLimitArr) == -1) {
+					clearInterval(this.upload.clock);
 					showModalTips("不允许上传此类文件<hr>支持的文件扩展名：<font color='#36d01a'>" + this.extensionLimitArr.join(" | ") + "</font>");
 					return false;
 				}
 
+				// 如果有块正在上传，则不进行上传
+				if (this.upload.sending == true) {
+					return;
+				}
+
+				// 如果起始位置大于文件大小即已全部上传
+				if (this.upload.start > file.size) {
+					clearInterval(this.upload.clock);
+					return;
+				}
+
+				// 截取文件
+				this.upload.blob = file.slice(this.upload.start, this.upload.end);
+
 				let formData = new FormData();
 				formData.append("type", this.type);
-				formData.append("fileInfo", file);
+				formData.append("fileInfo", this.upload.blob);
+				formData.append("name", file.name);
+				formData.append("end", (this.upload.end >= file.size));
 
 				$.ajax({
 					url: "/file/upload",
 					type: 'POST',
 					data: formData,
 					dataType: 'json',
-					async: false,// 防止重复提交的
 					cache: false,
+					async: false,
 					contentType: false,
 					processData: false,
 					error: function (e) {
 						unlockScreen();
 						console.log(e);
+						$("#uploadBtn_" + i).removeAttr("disabled");
+						clearInterval(that.upload.clock);
 						showModalTips("服务器错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + e.responseJSON.tables.Session.errorRequestId);
 					},
 					success: function (ret) {
 						if (ret.code == 200) {
-							alert('上传成功');
 							that.url[i] = ret.data.url;
 
 							$("#uploadForm_" + i).hide();
@@ -562,13 +628,35 @@
 							$("#uploadShowUrl_" + i).val(ret.data.url);
 							$("#uploadShowUrl_" + i).show();
 
-							$("#uploadBtn_" + i).hide();
-							$("#uploadAgainBtn_" + i).show();
+							// 重新设置截取的始末位置
+							that.upload.start = that.upload.end;
+							that.upload.end = that.upload.start + that.upload.cuttingLength;
+
+							// 本块已上传完成
+							that.upload.sending = false;
+
+							// 设置进度条位置
+							that.upload.percent = 100 * that.upload.start / file.size;
+
+							// 已全部上传
+							if (that.upload.percent > 100) {
+								unlockScreen();
+								that.upload.percent = 100;
+								$("#uploadBtn_" + i).hide();
+								$("#uploadAgainBtn_" + i).show();
+								$("#uploadProgressBar").attr("class", "progress-bar progress-bar-striped active progress-bar-success");
+							}
+
+							$("#uploadProgressBar").attr("style", "width:" + that.upload.percent + "%");
 						} else if (ret.tips !== '') {
+							$("#uploadBtn_" + i).removeAttr("disabled");
 							showModalTips(ret.tips);
+							clearInterval(that.upload.clock);
 							unlockScreen();
 						} else {
+							$("#uploadBtn_" + i).removeAttr("disabled");
 							unlockScreen();
+							clearInterval(that.upload.clock);
 							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
 						}
 					}
@@ -584,7 +672,21 @@
 				$("#uploadShowUrl_" + i).hide();
 
 				$("#uploadBtn_" + i).show();
+				$("#uploadBtn_" + i).removeAttr("disabled");
 				$("#uploadAgainBtn_" + i).hide();
+
+				$("#uploadProgressBar").attr("style", "width:0%");
+				$("#uploadProgressBar").attr("class", "progress-bar progress-bar-striped active");
+
+				this.upload = {
+					clock: null,
+					cuttingLength: 1024 * 1024 * 1, // 每次上传的大小
+					start: 0, // 每次上传的开始字节
+					end: 1024 * 1024 * 1, // 每次上传的结尾字节
+					sending: false, // 是否正在上传
+					blob: null, // 二进制对象
+					percent: 0,
+				}
 			},
 			giveupUpload: function () {
 				this.url = [];
