@@ -5,8 +5,8 @@ use think\facade\Request;
 
 /**
  * getSetting 获取数据库中的系统配置
- * @param string $configName 配置键名
- * @return string 配置值
+ * @param  string $configName 配置键名
+ * @return string             配置值
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
  * @version 2020-07-12
@@ -22,9 +22,31 @@ function getSetting($configName = '')
 
 
 /**
+ * checkUUID 校验UUID是否符合格式
+ * @param  string $string 待检测字符串
+ * @return string         合法字符串（若不合法则直接die）
+ * @author Oyster Cheung <master@xshgzs.com>
+ * @since 2020-07-29
+ * @version 2020-07-29
+ */
+function checkUUID($string = '')
+{
+	if ($string == '0') return '0';
+	elseif (strlen($string) !== 36) packApiData(4001, 'Invalid ID', [], '非法ID', false, true);
+
+	for ($i = 0; $i < 36; $i++) {
+		if (($i == 8 || $i == 13 || $i == 18 || $i == 23) && $string[$i] !== '-') packApiData(4001, 'Invalid ID', [], '非法ID', false, true);
+		elseif (($i !== 8 && $i !== 13 && $i !== 18 && $i !== 23) && !preg_match("/^[A-Za-z0-9]+$/", $string[$i])) packApiData(40012, 'Invalid ID', [], '非法ID', false, true);
+	}
+
+	return $string;
+}
+
+
+/**
  * checkPassword 校验密码的有效性
- * @param string $userName
- * @param string $password
+ * @param  string  $userName
+ * @param  string  $password
  * @return boolean 密码是否有效
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
@@ -43,9 +65,9 @@ function checkPassword($userName = '', $password = '')
 
 /**
  * getRandomStr  获取随机字符串
- * @param int     $length 欲获取的随机字符串长度
- * @param int     $type   0:无限制|1:只要大写|2:只要小写|3:字母数字混合
- * @return string         随机字符串
+ * @param  int     $length 欲获取的随机字符串长度
+ * @param  int     $type   0:无限制|1:只要大写|2:只要小写|3:字母数字混合
+ * @return string          随机字符串
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2018-09-28
  * @version 2020-07-12

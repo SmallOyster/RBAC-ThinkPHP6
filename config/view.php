@@ -22,4 +22,9 @@ return [
     'taglib_begin'  => '{',
     // 标签库标签结束标记
     'taglib_end'    => '}',
+    
+    // 标签输出替换
+    'tpl_replace_string'  =>  [
+        '__APP_HOST__' => \think\facade\Config::get('app.app_host'),
+    ]
 ];

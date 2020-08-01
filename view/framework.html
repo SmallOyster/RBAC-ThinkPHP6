@@ -3,7 +3,6 @@
 
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-
 	<meta name="author" content="Oyster Cheung">
 
 	<title>{block name='title'}{/block}</title>
@@ -14,7 +13,7 @@
 	<link rel="stylesheet" href="https://static.xshgzs.com/css/adminlte_cyan.css">
 	<link rel="stylesheet" href="https://static.xshgzs.com/css/loading.css">
 
-	<link rel="stylesheet" href="{:think\\facade\\Config::get('app.app_host')}public/css/console.css">
+	<link rel="stylesheet" href="__APP_HOST__public/css/console.css">
 
 	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/fontawesome.min.css">
 	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/solid.min.css">
@@ -29,8 +28,8 @@
 
 	<script src="https://static.xshgzs.com/js/utils.js"></script>
 
-	<script src="{:think\\facade\\Config::get('app.app_host')}public/js/util.js"></script>
-	<script src="{:think\\facade\\Config::get('app.app_host')}public/js/config.js"></script>
+	<script src="__APP_HOST__public/js/util.js"></script>
+	<script src="__APP_HOST__public/js/config.js"></script>
 
 	{block name='pageCss'} {/block}
 
@@ -63,13 +62,13 @@
 
 					<ol class="breadcrumb">
 						<li>
-							<a href="{:think\\facade\\Config::get('app.app_host')}">
+							<a href="__APP_HOST__">
 								<i class="fa fa-dashboard"></i>{:getSetting('appName')}
 							</a>
 						</li>
 
 						{foreach $pagePath as $name=>$url}
-						<li><a href="{:think\\facade\\Config::get('app.app_host')}{$url}">{$name}</a></li>
+						<li><a href="__APP_HOST__{$url}">{$name}</a></li>
 						{/foreach}
 
 						<li class="active">{$pageName}</li>
