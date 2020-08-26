@@ -1,43 +1,60 @@
 <?php
 
 /**
- * @name 宇滔流媒体平台后台-C-文件
+ * @name 生蚝科技TP6-RBAC开发框架-C-文件
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-22
- * @version 2020-07-25
+ * @version 2020-07-28
  */
 
 namespace app\controller;
 
-use app\BaseController;
 use think\facade\Request;
 
-class File extends BaseController
+class File
 {
 	public function upload()
 	{
+		if (!\think\facade\Session::has('userInfo.id')) return packApiData(4031, 'User have no permission', [], '用户无权限访问');
+
 		$type = inputPost('type', 0, 1);
+		$name = inputPost('name', 0, 1);
+		$end = inputPost('end', 0, 1);
 
 		if (!isset($_FILES['fileInfo'])) return packApiData(4001, 'No file', [], '未选择要上传的文件');
 		else $file = $_FILES['fileInfo'];
 
-		$fileExtension = substr($file['name'], strrpos($file['name'], '.') + 1);
+		$fileExtension = substr($name, strrpos($name, '.') + 1);
 		$check = self::checkFile($type, $file, $fileExtension);
 
 		if ($check === 1) {
 			return packApiData(4002, 'Invalid upload type', [], '非法的上传路径，请联系管理员');
 		} elseif ($check === 2) {
-			return packApiData(4003, 'File is too big', [], '文件过大，请重新选择文件', false);
+			//return packApiData(4003, 'File is too big', [], '文件过大，请重新选择文件', false);
 		} elseif ($check === 3) {
-			return packApiData(4004, 'Not support extension', [], '不支持上传此文件类型');
+			//return packApiData(4004, 'Not support extension', [], '不支持上传此文件类型');
 		}
 
-		$newName = sha1(date('YmdHis') . mt_rand(123456, 987654)) . '.' . $fileExtension;
-		$newLocation = 'file/' . $type . $newName;
-		move_uploaded_file($file['tmp_name'], public_path() . $newLocation);
+		$location = 'file/' . $type . $name;
+
+		if (!file_exists(public_path() . $location)) {
+			// 第一块上传
+			move_uploaded_file($file['tmp_name'], public_path() . $location);
+		} else {
+			file_put_contents(public_path() . $location, file_get_contents($file['tmp_name']), FILE_APPEND);
+		}
+
+		// 到了最后一块，把名字改为随机数
+		if ($end == 'true') {
+			$newName = sha1(date('YmdHis') . mt_rand(123456, 987654)) . '.' . $fileExtension;
+			$newLocation = 'file/' . $type . $newName;
+
+			copy(public_path() . $location, public_path() . $newLocation);
+			unlink(public_path() . $location);
+		}
 
 		return packApiData(200, 'success', [
-			'url' => Request::root(true) . '/public/' . $newLocation
+			'url' => ($end == 'true') ? Request::root(true) . '/public/' . $newLocation : '上传中 Uploading...',
 		]);
 	}
 

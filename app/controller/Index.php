@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-首页
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-16
+ * @version 2020-07-21
  */
 
 namespace app\controller;
@@ -18,6 +18,8 @@ class Index
 {
 	public function index()
 	{
+		if (!Session::has('userInfo.id')) gotourl('/logout');
+
 		return view('/index/index', [
 			'pageName' => '首页',
 			'pagePath' => []
@@ -73,7 +75,7 @@ class Index
 		return packApiData(200, 'success', [
 			'url' => \think\facade\Config::get('app.app_host'),
 			'userInfo' => $userInfo
-		]);
+		], '', false);
 	}
 
 
@@ -107,7 +109,7 @@ class Index
 		$salt = getRandomStr(10);
 		$hash = sha1($salt . md5($userInfo['user_name'] . $password) . $password);
 
-		$query = UserModel::where('email', $address)
+		UserModel::where('email', $address)
 			->update([
 				'salt' => $salt,
 				'password' => $hash,
@@ -126,7 +128,7 @@ class Index
 
 		$userInfo = UserModel::where('email', $address)->find();
 
-		if (!isset($userInfo['id'])) return packApiData(4001, 'User not found', [], '无此邮箱对应的用户');
+		if (!isset($userInfo['id'])) return packApiData(4001, 'User not found', [], '无此邮箱对应的用户', false);
 
 		$mail = new PHPMailer();
 		$mail->isSMTP();
