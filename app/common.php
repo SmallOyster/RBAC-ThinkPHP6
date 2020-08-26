@@ -4,6 +4,29 @@
 use think\facade\Request;
 
 /**
+ * camelize 下划线转小驼峰
+ * @param string  $uncamelized_words 待转换的字符串
+ * @return string                    小驼峰式的字符串
+ */
+function camelize($uncamelizedWord = '')
+{
+	$uncamelizedWord = '_' . str_replace('_', ' ', strtolower($uncamelizedWord));
+	return ltrim(str_replace(' ', '', ucwords($uncamelizedWord)), '_');
+}
+
+
+/**
+ * uncamelize 驼峰命名转下划线命名
+ * @param string $camelCaps 待转换的驼峰式字符串
+ * @return string           下划线式字符串
+ */
+function uncamelize($camelCaps = '')
+{
+	return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . '_' . "$2", $camelCaps));
+}
+
+
+/**
  * getSetting 获取数据库中的系统配置
  * @param  string $configName 配置键名
  * @return string             配置值
@@ -144,7 +167,7 @@ function getIP()
  * @since 2019-11-17
  * @version 2020-05-30
  */
-function packApiData($code = 0, $message = '',  $data = [],  $tips = '',  $needLog = true,  $isDie = false)
+function packApiData($code = 0, $message = '', $data = [], $tips = '', $needLog = true, $isDie = false)
 {
 	$reqId = makeUUID();
 

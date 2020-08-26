@@ -16,6 +16,6 @@ class Role extends BaseController
 {
 	public function getList()
 	{
-		return packApiData(200, 'success', ['list' => RoleModel::select()]);
+		return packApiData(200, 'success', ['list' => RoleModel::select()], '', false);
 	}
 }

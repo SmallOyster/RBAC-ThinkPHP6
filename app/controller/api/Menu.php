@@ -23,7 +23,7 @@ class Menu extends BaseController
 		else return packApiData(403, 'User not login', [], '用户未登录');
 
 		$obj_Rbac = new Rbac();
-		return packApiData(200, 'success', ['treeData' => $obj_Rbac->getAllMenuByRole($roleId)]);
+		return packApiData(200, 'success', ['treeData' => $obj_Rbac->getAllMenuByRole($roleId)], '', false);
 	}
 
 
@@ -61,7 +61,7 @@ class Menu extends BaseController
 			$rtn[$key]['updateTime'] = $info['update_time'];
 		}
 
-		return packApiData(200, 'success', ['node' => $rtn]);
+		return packApiData(200, 'success', ['node' => $rtn], '', false);
 	}
 
 
@@ -89,9 +89,9 @@ class Menu extends BaseController
 				$rtn[$key]['updateTime'] = $info['update_time'];
 			}
 
-			return packApiData(200, 'success', ['node' => $rtn]);
+			return packApiData(200, 'success', ['node' => $rtn], '', false);
 		} else {
-			return packApiData(200, 'success', ['list' => $list]);
+			return packApiData(200, 'success', ['list' => $list], '', false);
 		}
 	}
 }

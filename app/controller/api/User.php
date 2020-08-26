@@ -17,13 +17,13 @@ class User extends BaseController
 {
 	public function getCurrentUserInfo()
 	{
-		if (Session::has('userInfo')) return packApiData(200, 'success', ['userInfo' => Session::get('userInfo')]);
-		else return packApiData(403, 'User not login', [], '用户尚未登录');
+		if (Session::has('userInfo')) return packApiData(200, 'success', ['userInfo' => Session::get('userInfo')], '', false);
+		else return packApiData(403, 'User not login', [], '用户尚未登录', false);
 	}
 
 
 	public function getList()
 	{
-		return packApiData(200, 'success', ['list' => UserModel::select()->hidden(['password', 'salt'])]);
+		return packApiData(200, 'success', ['list' => UserModel::select()->hidden(['password', 'salt'])], '', false);
 	}
 }
