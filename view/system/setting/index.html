@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-系统配置管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-15
- * @version 2020-08-01
+ * @version 2020-08-17
  */
 ?>
 
@@ -11,15 +11,7 @@
 
 {block name='title'}{$pageName} / {:getSetting('appName')}{/block}
 
-{block name='pageCss'}
-<style>
-	@media (min-width: 768px) {
-		#CUModal>div {
-			width: 800px;
-		}
-	}
-</style>
-{/block}
+{block name='pageCss'}{/block}
 
 {block name='vueBody'}
 <table-filter ref="filterRef"
@@ -30,6 +22,7 @@
 
 <div class="operateBtnGroup">
 	<button class="btn btn-primary" @click="readyCU('create')">新增配置项</button>
+	<button class="btn btn-default">配置值后带有...的请点击“编辑”查看详情 | 上方支持模糊查询</button>
 </div>
 
 <div class="div_table">
@@ -51,7 +44,7 @@
 			<tr v-for="info in list">
 				<td class="cell-center">{{info.name}}</td>
 				<td class="cell-center">{{info.chinese_name}}</td>
-				<td>{{info.value}}</td>
+				<td>{{(info.value.length>50)?info.value.substr(0,50)+"......":info.value}}</td>
 				<td>{{info.remark}}</td>
 				<td class="cell-center">{{info.create_time}}</td>
 				<td class="cell-center">{{info.update_time}}</td>

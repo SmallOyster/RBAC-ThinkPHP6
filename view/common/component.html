@@ -1,5 +1,5 @@
 <!-- 多选模态框 -->
-<!-- @Oyster Cheung(20200105-20200801) -->
+<!-- @Oyster Cheung(20200105-20200815) -->
 <style>
 	.select-picker {
 		padding: 10px;
@@ -66,7 +66,7 @@
 								</div>
 								<div style="height: 300px; overflow: auto" class="select-picker">
 									<ul i="ul-body" :class="[(multiple===true)?'checkbox':'radio']">
-										<!-- 是否初次打开选择框 -->
+										<!-- 是否有筛选 -->
 										<template v-if="filteredList===''">
 											<li v-for="(name,id) in itemList"
 												:class="[(checkedList.indexOf(id)>=0)?'on':'']"
@@ -113,6 +113,7 @@
 		},
 		methods: {
 			returnCheckedId: function () {
+				let that = this;
 				this.$emit('update:checked-node', this.checkedList);
 				this.$parent[this.saveMethodName]();
 
@@ -133,11 +134,10 @@
 				}
 			},
 			show: function () {
-				let that = this;
 				// 第二次调用时要更新节点列表
 				this.checkedList = this.propCheckedList;
 
-				$("#chooseItemModalMain_" + that.modalId).modal('show');
+				$("#chooseItemModalMain_" + this.modalId).modal('show');
 				return true;
 			},
 			checked: function (id) {
@@ -162,7 +162,7 @@
 			},
 			close: function () {
 				this.clearAll();
-				$("#chooseItemModalMain_" + that.modalId).modal('hide');
+				$("#chooseItemModalMain_" + this.modalId).modal('hide');
 			}
 		}
 	};
@@ -171,7 +171,7 @@
 
 
 <!-- 数据表头筛选组 -->
-<!-- @Oyster Cheung(20200531-20200801) -->
+<!-- @Oyster Cheung(20200531-20200725) -->
 <style>
 	.table-filter-group div {
 		padding-left: 100px;
@@ -436,7 +436,7 @@
 
 
 <!-- 文件统一上传模态框 -->
-<!-- @Oyster Cheung(20200722-20200730) -->
+<!-- @Oyster Cheung(20200722-20200728) -->
 <template id="unified-upload-modal-template">
 	<div class="modal fade" id="uploadModal" style="z-index:99990">
 		<div class="modal-dialog">

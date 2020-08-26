@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-08-01
+ * @version 2020-07-21
  */
 ?>
 
@@ -13,12 +13,6 @@
 
 {block name='pageCss'}
 <style>
-	@media (min-width: 768px) {
-		#CUModal>div {
-			width: 800px;
-		}
-	}
-
 	.banUser {
 		background-color: #ffbdbd !important;
 	}
@@ -65,7 +59,7 @@
 					<div v-if="info.id!==getUserInfo().id">
 						<button class="btn btn-info"
 								@click="readyCU('update',info)">编辑</button>
-						<button class="btn btn-purple"
+						<button class="btn btn-pink"
 								@click="readyResetPassword(info.id,info.user_name,info.nick_name)">重置密码</button>
 						<button v-if="info.status===1" class="btn btn-warning"
 								@click="readyBanOrOpen('ban',info.id,info.user_name,info.nick_name)">禁用</button>
@@ -92,7 +86,7 @@
 
 {include file="/system/user/modal" /}
 
-<choose-item-modal ref='choose' modal-id="page"
+<choose-item-modal ref="choose" modal-id="body"
 				   :title="chooseItemModalName"
 				   :item-list='allRoleList'
 				   :prop-checked-list="nowRole"
@@ -127,18 +121,24 @@
 					type: "input",
 					name: "ID后5位"
 				},
+			}, {
 				user_name: {
 					type: "input",
 					name: "用户名"
+				}, nick_name: {
+					type: "input",
+					name: "昵称"
 				},
 			}, {
+				role_id: {
+					type: "option",
+					name: "角色",
+					isMultiple: true,
+					nodeList: {}
+				},
 				email: {
 					type: "input",
 					name: "邮箱"
-				},
-				nick_name: {
-					type: "input",
-					name: "昵称"
 				},
 				phone: {
 					type: "input",
@@ -263,6 +263,7 @@
 							}
 
 							that.allRoleList = arr;
+							that.filterForm[2].role_id.nodeList = arr;
 							return;
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
@@ -328,12 +329,12 @@
 				let that = this;
 				let info = JSON.parse(JSON.stringify(that.CUInfo));
 
-				if (info.userName.length < 1 || info.userName.length > 20 || info.userName.match(/[^\x00-\xff]/ig) || !testUserName(info.userName)) {
-					showModalTips("请输入[1~20]位的用户名<br>仅可含有[数字/字母/下划线]");
+				if (info.userName.length < 3 || info.userName.length > 20 || info.userName.match(/[^\x00-\xff]/ig) || !testUserName(info.userName)) {
+					showModalTips("请输入[3~20]位的用户名<br>仅可含有[数字/字母/下划线]");
 					return false;
 				}
-				if (info.nickName.length < 1 || info.nickName.length > 20) {
-					showModalTips("请输入[1~20]位的昵称");
+				if (info.nickName.length < 3 || info.nickName.length > 20) {
+					showModalTips("请输入[3~20]位的昵称");
 					return false;
 				}
 				if (!(/^1[3|5|6|7|8|9][0-9]\d{4,8}$/.test(info.phone))) {

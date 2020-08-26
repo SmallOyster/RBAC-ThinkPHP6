@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-菜单管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-14
- * @version 2020-07-15
+ * @version 2020-07-21
  */
 ?>
 
@@ -11,32 +11,7 @@
 
 {block name='title'}{$pageName} / {:getSetting('appName')}{/block}
 
-{block name='pageCss'}
-<style>
-	@media (min-width: 768px) {
-		#CUModal>div {
-			width: 700px;
-		}
-	}
-
-	.ztree li span.button.add {
-		margin-left: 2px;
-		margin-right: -1px;
-		background-position: -144px 0;
-		vertical-align: top;
-		*vertical-align: middle
-	}
-
-	ul.ztree {
-		margin-top: 10px;
-		border: 1px solid #617775;
-		background: #f0f6e4;
-		height: 360px;
-		overflow-y: scroll;
-		overflow-x: auto;
-	}
-</style>
-{/block}
+{block name='pageCss'}{/block}
 
 {block name='vueBody'}
 
@@ -74,16 +49,14 @@
 			},
 			treeSetting: {
 				view: {
-					selectedMulti: false
+					selectedMulti: false,
+					addHoverDom: addHoverDom,
+					removeHoverDom: removeHoverDom,
 				},
 				data: {
 					simpleData: {
 						enable: true
 					}
-				},
-				view: {
-					addHoverDom: addHoverDom,
-					removeHoverDom: removeHoverDom,
 				}
 			}
 		},

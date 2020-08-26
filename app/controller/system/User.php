@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-用户管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-07-21
+ * @version 2020-07-23
  */
 
 namespace app\controller\system;
@@ -37,6 +37,9 @@ class User extends BaseController
 				// 根据ID最后5位查询，方便用户快查
 				$countQuery = $countQuery->whereRaw('RIGHT(id,5)=:id', ['id' => $value]);
 				$query = $query->whereRaw('RIGHT(id,5)=:id', ['id' => $value]);
+			} elseif ($key === 'role_id') {
+				$countQuery = $countQuery->where('role_id', 'in', $value);
+				$query = $query->where('role_id', 'in', $value);
 			} else {
 				// 其他条件
 				$countQuery = $countQuery->where($key, $value);
@@ -92,7 +95,7 @@ class User extends BaseController
 		$userId = inputPost('userId', 0, 1);
 		$userName = inputPost('userName', 0, 1);
 		$password = inputPost('password', 0, 1);
-		
+
 		$salt = getRandomStr(10);
 		$hash = sha1($salt . md5($userName . $password) . $password);
 
