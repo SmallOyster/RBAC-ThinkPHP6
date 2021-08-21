@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-菜单管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-14
- * @version 2020-07-21
+ * @version 2020-09-10
  */
 ?>
 
@@ -37,6 +37,7 @@
 				name: "",
 				icon: "",
 				uri: "",
+				sort: 1,
 				showInfo: {
 					fatherName: "",
 					createTime: "",
@@ -92,12 +93,12 @@
 							unlockScreen();
 						} else {
 							unlockScreen();
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				});
 			},
-			readyCU: function (operateType, id = "", fatherId = "", icon = "", name = "", uri = "", createTime = "", updateTime = "") {
+			readyCU: function (operateType, id = "", fatherId = "", icon = "", name = "", uri = "", sort = 1, createTime = "", updateTime = "") {
 				let that = this;
 
 				this.CUInfo.operateType = operateType;
@@ -107,6 +108,7 @@
 					this.CUInfo.name = name;
 					this.CUInfo.icon = icon;
 					this.CUInfo.uri = uri;
+					this.CUInfo.sort = sort;
 					this.CUInfo.showInfo.createTime = createTime;
 					this.CUInfo.showInfo.updateTime = updateTime;
 				} else if (operateType == 'create') {
@@ -131,6 +133,7 @@
 					name: "",
 					icon: "",
 					uri: "",
+					sort: 1,
 					showInfo: {
 						createTime: "",
 						updateTime: "",
@@ -183,7 +186,7 @@
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
 						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				});
@@ -230,7 +233,7 @@
 							showModalTips(ret.tips);
 						} else {
 							unlockScreen();
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				})
@@ -245,7 +248,7 @@
 	function addHoverDom(treeId, treeNode) {
 		var aObj = $("#" + treeNode.tId + "_a");
 		var editStr = ""
-			+ "<button class='btn btn-info' id='treeBtn_edit_" + treeNode.id + "' onclick=" + '"' + "vm.readyCU('update','" + treeNode.id + "','','" + treeNode.menuIcon + "','" + treeNode.menuName + "','" + treeNode.uri + "','" + treeNode.createTime + "','" + treeNode.updateTime + "')" + '"' + ">编辑</button> "
+			+ "<button class='btn btn-info' id='treeBtn_edit_" + treeNode.id + "' onclick=" + '"' + "vm.readyCU('update','" + treeNode.id + "','','" + treeNode.menuIcon + "','" + treeNode.menuName + "','" + treeNode.uri + "'," + treeNode.sort + ",'" + treeNode.createTime + "','" + treeNode.updateTime + "')" + '"' + ">编辑</button> "
 			+ "<button class='btn btn-danger' id='treeBtn_delete_" + treeNode.id + "' onclick=" + '"' + "vm.readyDelete('" + treeNode.id + "','" + treeNode.name + "')" + '"' + ">删除</button> "
 			+ "<button class='btn btn-success' id='treeBtn_add_" + treeNode.id + "' onclick=" + '"' + "vm.readyCU('create','','" + treeNode.id + "','" + treeNode.menuIcon + "','" + treeNode.menuName + "')" + '"' + ">新增子菜单</button>";
 

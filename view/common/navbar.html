@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-导航栏
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2020-08-16
+ * @version 2021-08-01
  */
 ?>
 <div id="header">
@@ -70,31 +70,47 @@
 				</li>
 				<li v-for="fatherInfo in treeData" v-if="fatherInfo['hasChild']!=1 && fatherInfo['type']==1">
 					<a :href="[rootPath+fatherInfo['uri']]">
-						<i :class="['fas fa-'+fatherInfo['icon']]"></i> {{fatherInfo['name']}}
+						<i v-if="fatherInfo['icon'].substr(0,2)=='b|'"
+						   :class="['fab fa-fw fa-'+fatherInfo['icon'].substr(2)]"></i>
+						<i v-else :class="['fas fa-fw fa-'+fatherInfo['icon']]"></i>
+						{{fatherInfo['name']}}
 					</a>
 				</li>
 				<!-- 二级菜单 -->
 				<li v-else-if="fatherInfo['type']==1" class="treeview">
 					<a href="#">
-						<i :class="['fas fa-'+fatherInfo['icon']]"></i> <span>{{fatherInfo['name']}}</span>
+						<i v-if="fatherInfo['icon'].substr(0,2)=='b|'"
+						   :class="['fab fa-fw fa-'+fatherInfo['icon'].substr(2)]"></i>
+						<i v-else :class="['fas fa-fw fa-'+fatherInfo['icon']]"></i>
+						<span>{{fatherInfo['name']}}</span>
 						<span class="pull-right-container"><i class="fas fa-angle-left pull-right"></i></span>
 					</a>
 					<ul class="treeview-menu">
-						<li v-for="childInfo in fatherInfo['child']" v-if="childInfo['hasChild']!=1">
+						<li v-for="childInfo in fatherInfo['child']"
+							v-if="childInfo['hasChild']!=1 && childInfo['type']==1">
 							<a :href="[rootPath+childInfo['uri']]">
-								<i :class="['fas fa-'+childInfo['icon']]"></i> {{childInfo['name']}}
+								<i v-if="childInfo['icon'].substr(0,2)=='b|'"
+								   :class="['fab fa-fw fa-'+childInfo['icon'].substr(2)]"></i>
+								<i v-else :class="['fas fa-fw fa-'+childInfo['icon']]"></i>
+								{{childInfo['name']}}
 							</a>
 						</li>
 						<!-- 三级菜单 -->
-						<li v-else class="treeview">
+						<li v-else-if="childInfo['type']==1" class="treeview">
 							<a href="#">
-								<i :class="['fas fa-'+childInfo['icon']]"></i> <span>{{childInfo['name']}}</span>
+								<i v-if="childInfo['icon'].substr(0,2)=='b|'"
+								   :class="['fab fa-fw fa-'+childInfo['icon'].substr(2)]"></i>
+								<i v-else :class="['fas fa-fw fa-'+childInfo['icon']]"></i>
+								<span>{{childInfo['name']}}</span>
 								<span class="pull-right-container"><i class="fas fa-angle-left pull-right"></i></span>
 							</a>
 							<ul class="treeview-menu">
-								<li v-for="grandsonInfo in childInfo['child']">
+								<li v-for="grandsonInfo in childInfo['child']" v-if="grandsonInfo['type']==1">
 									<a :href="[rootPath+grandsonInfo['uri']]">
-										<i :class="['fas fa-'+grandsonInfo['icon']]"></i> {{grandsonInfo['name']}}
+										<i v-if="grandsonInfo['icon'].substr(0,2)=='b|'"
+										   :class="['fab fa-fw fa-'+grandsonInfo['icon'].substr(2)]"></i>
+										<i v-else :class="['fas fa-fw fa-'+grandsonInfo['icon']]"></i>
+										{{grandsonInfo['name']}}
 									</a>
 								</li>
 							</ul>
@@ -164,7 +180,7 @@
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
 						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				});
@@ -196,7 +212,7 @@
 						} else if (ret.tips !== '') {
 							showModalTips(ret.tips);
 						} else {
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				});

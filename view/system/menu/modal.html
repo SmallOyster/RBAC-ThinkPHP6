@@ -55,6 +55,10 @@
 							</div>
 						</td>
 					</tr>
+					<tr>
+						<th style="vertical-align: middle;">菜单排序</th>
+						<td><input v-model="CUInfo.sort" class="form-control" type="number"></td>
+					</tr>
 					<tr v-if="CUInfo.operateType==='update'">
 						<th style="vertical-align: middle;">创建时间</th>
 						<td><input :value="CUInfo.showInfo.createTime" class="form-control" disabled></td>

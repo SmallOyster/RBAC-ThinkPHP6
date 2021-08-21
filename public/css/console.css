@@ -1,7 +1,7 @@
 /**
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-06-25
- * @version 2020-08-24
+ * @version 2020-12-23
 */
 table {
     border-radius: 5px;
@@ -25,7 +25,8 @@ th {
     padding: 4px !important;
 }
 
-.cell-button-group button {
+.cell-button-group button,
+.cell-button-group a {
     padding: 3px 7px;
     font-size: 14px;
     line-height: 1.5;
@@ -67,13 +68,13 @@ tbody tr:hover {
 }
 
 .btn-pink {
-    background-color: #e98dfd;
+    background-color: #ed9dff;
     color: white;
 }
 
 .btn-pink:hover,
 .btn-pink:focus {
-    background-color: #f85cfd;
+    background-color: #fb7cff;
     color: white;
 }
 
@@ -121,6 +122,7 @@ ul.ztree {
 }
 
 .flow .dots {
+    padding-left: 0 !important;
     display: flex;
     width: 100%;
     -webkit-box-flex: 1;

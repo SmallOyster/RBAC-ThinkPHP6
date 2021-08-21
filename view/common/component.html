@@ -1,5 +1,5 @@
 <!-- 多选模态框 -->
-<!-- @Oyster Cheung(20200105-20200815) -->
+<!-- @Oyster Cheung(20200105-20200909) -->
 <style>
 	.select-picker {
 		padding: 10px;
@@ -49,11 +49,12 @@
 </style>
 
 <template id="choose-item-template">
-	<div class="modal fade bs-example-modal-lg" :id="['chooseItemModalMain_'+modalId]">
+	<div class="modal fade bs-example-modal-lg" :id="['chooseItemModalMain_'+modalId]" data-backdrop="static"
+		 data-keyboard="false">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<button type="button" class="close" data-dismiss="modal" v-if="canClose===true">&times;</button>
 					<h3 class="modal-title">{{title}}</h3>
 				</div>
 				<div class="modal-body">
@@ -85,7 +86,7 @@
 				</div>
 				<div class="modal-footer">
 					<button v-if="multiple===true" class="btn btn-warning" @click="clearAll">清空</button>
-					<button class="btn btn-primary" @click="close">关闭</button>
+					<button v-if="canClose===true" class="btn btn-primary" @click="close">关闭</button>
 					<button class="btn btn-success" @click="returnCheckedId">确定</button>
 				</div>
 			</div>
@@ -103,10 +104,12 @@
 			'propCheckedList',// 默认选中的节点列表
 			'multiple',// 是否允许多选
 			'saveMethodName',// 父组件中，保存选中数据的方法名
+			'propCanClose',// 是否支持自己点关闭
 		],
 		data: function () {
 			return {
-				checkedList: this.propCheckedList,
+				canClose: true,
+				checkedList: "",
 				filterText: "",
 				filteredList: ""
 			}
@@ -134,8 +137,8 @@
 				}
 			},
 			show: function () {
-				// 第二次调用时要更新节点列表
 				this.checkedList = this.propCheckedList;
+				this.canClose = (this.propCanClose == undefined) ? true : this.propCanClose;
 
 				$("#chooseItemModalMain_" + this.modalId).modal('show');
 				return true;
@@ -171,7 +174,7 @@
 
 
 <!-- 数据表头筛选组 -->
-<!-- @Oyster Cheung(20200531-20200725) -->
+<!-- @Oyster Cheung(20200531-20200903) -->
 <style>
 	.table-filter-group div {
 		padding-left: 100px;
@@ -302,11 +305,14 @@
 		},
 		methods: {
 			search: function () {
+				let ret = {};
 				for (i in this.formData) {
-					if (this.formData[i] == "") delete this.formData[i];
+					if (this.formData[i] !== "" && this.formData[i] !== []) {
+						ret[i] = this.formData[i];
+					}
 				}
 
-				this.$emit('update:filter-data', this.formData);
+				this.$emit('update:filter-data', ret);
 				this.$parent[this.eventName]();
 			},
 			reset: function () {
@@ -318,11 +324,14 @@
 				this.chooseItemModal.nodeId = id;
 				this.chooseItemModal.nodeList = nodeList;
 				this.chooseItemModal.isMultiple = isMultiple;
-				this.$refs.tableFilterChooseModal.show();
+				this.chooseItemModal.nowNode = (this.formData[this.chooseItemModal.nodeId] == undefined) ? [] : this.formData[this.chooseItemModal.nodeId];
+
+				setTimeout(() => {
+					this.$refs.tableFilterChooseModal.show();
+				}, 300)
 			},
 			saveChecked: function () {
 				this.formData[this.chooseItemModal.nodeId] = this.chooseItemModal.checkedId;
-				this.chooseItemModal.nowNode = this.chooseItemModal.checkedId;
 			},
 			showChooseZtree: function (id, name, setting, data) {
 				this.ztree.id = id;
@@ -355,7 +364,7 @@
 
 
 <!-- 表格分页条 -->
-<!-- @Oyster Cheung(20200531-20200721) -->
+<!-- @Oyster Cheung(20200531-20200910) -->
 <template id="pagination-template">
 	<div>
 		<p style="float: left;">
@@ -364,15 +373,17 @@
 
 		<p style="float: right;">
 			第<input v-model="inputNowPage" @keyup.enter="changePage(parseInt(inputNowPage))"
-				   style="width: 50px;" data-toggle="tooltip" data-placement="right"
+				   style="width: 50px;" data-toggle="tooltip" data-placement="right" type="number"
 				   title="按回车即可跳转">页，共{{totalPage}}页
 		</p>
 
 		<center>
 			<ul class="pagination">
+				<!-- 第一页 -->
 				<li v-if="nowPage-2>=1" :class="{hidden:(nowPage<=1)}">
 					<a @click="changePage(1)"><span aria-hidden="true">«</span></a>
 				</li>
+				<!-- 上一页 -->
 				<li v-if="nowPage-1>=1" :class="{hidden:(nowPage<=1)}">
 					<a @click="changePage(nowPage-1)"><span aria-hidden="true">&lt;</span></a>
 				</li>
@@ -385,9 +396,11 @@
 				<li v-if="nowPage+1<=totalPage"><a @click="changePage(nowPage+1)">{{nowPage+1}}</a></li>
 				<li v-if="nowPage+2<=totalPage"><a @click="changePage(nowPage+2)">{{nowPage+2}}</a></li>
 
+				<!-- 下一页 -->
 				<li v-if="nowPage+1<=totalPage" :class="{hidden:(nowPage==totalPage)}">
 					<a @click="changePage(nowPage+1)"><span aria-hidden="true">&gt;</span></a>
 				</li>
+				<!-- 最后一页 -->
 				<li v-if="nowPage+2<=totalPage" :class="{hidden:(nowPage==totalPage)}">
 					<a @click="changePage(totalPage)"><span aria-hidden="true">»</span></a>
 				</li>
@@ -421,7 +434,10 @@
 			changePage: function (page) {
 				if (page > this.totalPage) {
 					alert("页码超过最大页数，当前数据共" + this.totalPage + "页");
-					return;
+					return false;
+				} else if (page <= 0) {
+					alert("无效的页码数字，当前数据共" + this.totalPage + "页");
+					return false;
 				}
 
 				this.nowPage = page;
@@ -436,7 +452,7 @@
 
 
 <!-- 文件统一上传模态框 -->
-<!-- @Oyster Cheung(20200722-20200728) -->
+<!-- @Oyster Cheung(20200722-20200901) -->
 <template id="unified-upload-modal-template">
 	<div class="modal fade" id="uploadModal" style="z-index:99990">
 		<div class="modal-dialog">
@@ -486,10 +502,12 @@
 			"sizeLimit",
 			"extensionLimit",
 			"saveMethodName",
+			"extraParam"
 		],
 		data: function () {
 			return {
 				url: [],
+				_extraParam: {},
 				upload: {
 					clock: null,
 					cuttingLength: 1024 * 1024 * 1, // 每次上传的大小
@@ -601,6 +619,7 @@
 				formData.append("fileInfo", this.upload.blob);
 				formData.append("name", file.name);
 				formData.append("end", (this.upload.end >= file.size));
+				formData.append("extraParam", JSON.stringify(this.extraParam));
 
 				$.ajax({
 					url: "/file/upload",
@@ -657,7 +676,7 @@
 							$("#uploadBtn_" + i).removeAttr("disabled");
 							unlockScreen();
 							clearInterval(that.upload.clock);
-							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.requestId);
+							showModalTips("系统错误<br>请联系技术支持并提供以下ID<br>（可截图或直接提供最后5位）<hr><p style='font-size:22px;color:#078cff'>" + ret.data.errorRequestId);
 						}
 					}
 				});
@@ -693,6 +712,13 @@
 				$("#uploadModal").modal("hide");
 			},
 			success: function () {
+				this.url = this.url.filter(res => { return res != null });
+
+				if (this.url.length < 1 || this.url[0] == "") {
+					showModalTips("请上传文件<br>如放弃上传，请点击左侧按钮");
+					return false;
+				}
+
 				this.$emit('update:url', this.url);
 				this.$parent[this.saveMethodName]();
 

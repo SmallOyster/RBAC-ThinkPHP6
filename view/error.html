@@ -7,7 +7,7 @@
 	<title>温馨提示 / {:getSetting('appName')}</title>
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 	<link rel="shortcut icon" href="/favicon.ico">
-	<link rel="stylesheet" href="https://cdn.bootcss.com/weui/2.1.2/style/weui.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/weui/2.4.4/style/weui.min.css">
 </head>
 
 <body>
@@ -25,11 +25,16 @@
 				{/if}
 			</div>
 			<div class="weui-msg__text-area">
+				{if $hideTitle!=='1'}
 				<p class="weui-msg__title" style="font-size: 25px;">温馨提示</p>
+				{/if}
 				<p class="weui-msg__desc" style="font-size: 22px;">{$content|raw}</p>
 			</div>
 			<div class="weui-msg__opr-area">
 				<p class="weui-btn-area">
+					{if $canBack=='1'}
+					<a onclick="history.go(-1)" class="weui-btn weui-btn_primary">返回上一页</a>
+					{/if}
 					<a href="{:url('/')}" class="weui-btn weui-btn_primary">返回首页</a>
 				</p>
 			</div>
