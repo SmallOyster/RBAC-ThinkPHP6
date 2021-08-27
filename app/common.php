@@ -165,9 +165,9 @@ function getIP()
  * @return string|die
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2019-11-17
- * @version 2020-05-30
+ * @version 2021-08-25
  */
-function packApiData($code = 0, $message = '', $data = [], $tips = '', $needLog = true, $isDie = false)
+function packApiData($code = 0, $message = '',  $data = [],  $tips = '',  $needLog = true,  $isDie = false)
 {
 	$reqId = makeUUID();
 
@@ -180,16 +180,17 @@ function packApiData($code = 0, $message = '', $data = [], $tips = '', $needLog 
 		'requestId' => $reqId
 	);
 
-	if ($code !== 403001 && $needLog === true) {
+	if ($needLog === true) {
 		\app\model\ApiRequestLog::create([
 			'request_id' => $reqId,
 			'path' => Request::baseUrl(),
-			'referer' => $_SERVER['HTTP_REFERER'] ?? '.',
+			'referer' => $_SERVER['HTTP_REFERER'] ?? '/',
 			'ip' => getIP(),
 			'code' => $code,
 			'message' => $message,
 			'req_data' => json_encode(Request::except(['token'])),
 			'res_data' => json_encode($data),
+			'create_user_id' => think\facade\Session::get('userInfo.id', 0)
 		]);
 	} else {
 		unset($r['requestId']);
@@ -299,17 +300,18 @@ function inputPost($dataName = '', $allowNull = 0, $isAjax = 0, $errorCode = 0, 
  * curl请求封装函数
  * @param  string  $url          请求URL
  * @param  string  $type         请求类型(get/post)
+ * @param  string  $returnType   返回数据类型(空/json)
+ * @param  array   $header       自定义请求头
  * @param  array   $postData     需要POST的数据
- * @param  string  $postDataType POST数据类型(array/json)
- * @param  string  $returnType   返回数据类型(origin/json)
- * @param  integer $timeout      超时秒数
+ * @param  string  $postDataType POST数据类型(form/json)
+ * @param  integer $timeout      超时秒数(单位:秒)
  * @param  string  $userAgent    UserAgent
  * @return string|array          返回结果(类型看returnType)
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2019-11-17
- * @version 2020-04-04
+ * @version 2021-06-13
  */
-function curl($url, $type = 'get', $postData = array(), $postDataType = 'array', $returnType = 'origin', $timeout = 5, $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
+function curl($url, $type = 'get', $returnType = '', $header = [], $postData = [], $postDataType = 'form', $timeout = 5, $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
 {
 	if ($url == '' || $timeout <= 0) {
 		return false;
@@ -324,19 +326,19 @@ function curl($url, $type = 'get', $postData = array(), $postDataType = 'array',
 	curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 
 	if ($type === 'post') {
-		if ($postData == array()) {
-			return false;
-		} else if ($postDataType === 'json') {
+		if ($postDataType === 'json') {
 			$postData = json_encode($postData);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+			array_push($header, 'Content-Type: application/json');
 		}
 
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 	}
 
+	if (count($header) > 0) curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
 	$rtn = curl_exec($ch);
-	if ($rtn === false) $rtn = 'curlError:' . curl_errno($ch);
+	if ($rtn === false) $rtn = 'curlError:' . curl_error($ch);
 	curl_close($ch);
 
 	$rtn = ($returnType === 'json') ? json_decode($rtn, true) : $rtn;
