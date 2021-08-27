@@ -3,7 +3,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-V-导航栏
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-11
- * @version 2021-08-01
+ * @version 2021-08-26
  */
 ?>
 <div id="header">
@@ -24,14 +24,15 @@
 				<ul class="nav navbar-nav">
 					<li class="dropdown user user-menu">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							<img src="https://static.xshgzs.com/image/user.png" class="user-image">
+							<img src="__APP_HOST__public/image/user.png" class="user-image">
 							<span class="hidden-xs">{{userInfo['nickName']}}</span>
 						</a>
 						<ul class="dropdown-menu">
 							<li class="user-header">
-								<img src="https://static.xshgzs.com/image/user.png" class="img-circle">
+								<img src="__APP_HOST__public/image/user.png" class="img-circle">
 								<p>{{userInfo['userName']}} -
-									{{userInfo['nickName']}}</p>
+									{{userInfo['nickName']}}
+								</p>
 							</li>
 							<!-- Menu Footer-->
 							<li class="user-footer">
@@ -55,7 +56,7 @@
 		<section class="sidebar">
 			<div class="user-panel">
 				<div class="pull-left image">
-					<img src="https://static.xshgzs.com/image/user.png" class="img-circle">
+					<img src="__APP_HOST__public/image/user.png" class="img-circle">
 				</div>
 				<div class="pull-left info">
 					<p>{{userInfo['nickName']}}<br><br>{{userInfo['roleName']}}</p>
@@ -68,7 +69,7 @@
 						<i class="fas fa-home"></i> 网站首页
 					</a>
 				</li>
-				<li v-for="fatherInfo in treeData" v-if="fatherInfo['hasChild']!=1 && fatherInfo['type']==1">
+				<li v-for="fatherInfo in treeData" v-if="(fatherInfo['hasChild']==false && fatherInfo['type']==1) || fatherInfo['childTypeCnt'][1]==0">
 					<a :href="[rootPath+fatherInfo['uri']]">
 						<i v-if="fatherInfo['icon'].substr(0,2)=='b|'"
 						   :class="['fab fa-fw fa-'+fatherInfo['icon'].substr(2)]"></i>
@@ -87,7 +88,7 @@
 					</a>
 					<ul class="treeview-menu">
 						<li v-for="childInfo in fatherInfo['child']"
-							v-if="childInfo['hasChild']!=1 && childInfo['type']==1">
+							v-if="(childInfo['hasChild']==false && childInfo['type']==1) || childInfo['childTypeCnt'][1]==0">
 							<a :href="[rootPath+childInfo['uri']]">
 								<i v-if="childInfo['icon'].substr(0,2)=='b|'"
 								   :class="['fab fa-fw fa-'+childInfo['icon'].substr(2)]"></i>
@@ -115,10 +116,10 @@
 								</li>
 							</ul>
 						</li>
-						<!-- ./三级菜单 -->
+						<!-- /.三级菜单 -->
 					</ul>
 				</li>
-				<!-- ./二级菜单 -->
+				<!-- /.二级菜单 -->
 			</ul>
 			<!-- /.菜单树 -->
 		</section>
@@ -128,8 +129,9 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-							  aria-hidden="true">&times;</span></button>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
 					<h4 class="modal-title">登出提示</h4>
 				</div>
 				<div class="modal-body">
@@ -162,7 +164,7 @@
 				lockScreen();
 
 				$.ajax({
-					url: this.apiPath + "user/getCurrentUserInfo",
+					url: this.apiPath + "v1/user/getCurrentUserInfo",
 					dataType: "json",
 					error: function (e) {
 						unlockScreen();
@@ -190,7 +192,7 @@
 				lockScreen();
 
 				$.ajax({
-					url: this.apiPath + "menu/getCurrentUserMenu",
+					url: this.apiPath + "v1/menu/getCurrentUserMenu",
 					dataType: "json",
 					error: function (e) {
 						unlockScreen();

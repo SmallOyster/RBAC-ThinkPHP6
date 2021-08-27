@@ -4,7 +4,7 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-菜单管理
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-14
- * @version 2020-07-21
+ * @version 2021-08-26
  */
 
 namespace app\controller\system;
@@ -31,11 +31,11 @@ class Menu extends BaseController
 		$cuType = $cuInfo['operate_type'];
 
 		if ($cuType == 'update') {
-			MenuModel::update($cuInfo, ['id' => $cuInfo['id']], ['name', 'icon', 'uri']);
+			MenuModel::update($cuInfo, ['id' => $cuInfo['id']], ['name', 'icon', 'uri', 'type', 'sort']);
 			return packApiData(200, 'success');
 		} elseif ($cuType == 'create') {
 			$cuInfo['id'] = makeUUID();
-			MenuModel::create($cuInfo, ['id', 'father_id', 'name', 'icon', 'uri']);
+			MenuModel::create($cuInfo, ['id', 'father_id', 'name', 'icon', 'uri', 'type', 'sort']);
 			return packApiData(200, 'success');
 		} else {
 			return packApiData(5002, 'Invalid cu type', [], '非法操作行为');

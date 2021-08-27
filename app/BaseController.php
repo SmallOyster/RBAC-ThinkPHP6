@@ -77,7 +77,7 @@ abstract class BaseController
 		$roleId = Session::get('userInfo.roleId');
 		$havePermission = false;
 		foreach ($query as $info) {
-			if ($info['role_id'] === $roleId) $havePermission = true;
+			if ($info['roleId'] === $roleId) $havePermission = true;
 		}
 
 		if ($havePermission === true) return;
