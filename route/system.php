@@ -4,10 +4,29 @@
  * @name 生蚝科技TP6-RBAC开发框架-R-系统模块路由
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-16
+ * @version 2021-08-22
  */
 
 use think\facade\Route;
+
+Route::get('/', 'Index/index');
+Route::get('login', 'Index/login');
+Route::get('uiasLogin', 'Index/uiasLogin');
+Route::get('otpLogin', 'Index/otpLogin');
+Route::post('otpLogin', 'Index/checkOtpCode');
+Route::get('logout', 'Index/logout');
+Route::get('forgetPassword', 'Index/forgetPassword');
+Route::post('sendCode2ForgetPassword', 'Index/sendCode2ForgetPassword');
+Route::post('resetPassword', 'Index/toResetPassword');
+
+Route::group('error', function () {
+	Route::get('/', 'Error/index');
+	Route::get('noPermission', 'error/noPermission');
+});
+
+Route::group('file', function () {
+	Route::post('upload', 'File/upload');
+});
 
 Route::group('system', function () {
 	Route::group('user', function () {
