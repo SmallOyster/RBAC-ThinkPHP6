@@ -4,10 +4,10 @@
  * @name 生蚝科技TP6-RBAC开发框架-C-菜单接口
  * @author Oyster Cheung <master@xshgzs.com>
  * @since 2020-07-12
- * @version 2020-07-14
+ * @version 2021-08-26
  */
 
-namespace app\controller\api;
+namespace app\controller\api\v1;
 
 use app\BaseController;
 use think\facade\Session;
@@ -50,15 +50,15 @@ class Menu extends BaseController
 
 		foreach ($menuList as $key => $info) {
 			$rtn[$key]['id'] = $info['id'];
-			$rtn[$key]['pId'] = $info['father_id'];
+			$rtn[$key]['pId'] = $info['fatherId'];
 			$rtn[$key]['menuIcon'] = $info['icon'];
 			$rtn[$key]['menuName'] = $info['name'];
 			$rtn[$key]['uri'] = $info['uri'];
 			$rtn[$key]['type'] = $info['type'];
 			$rtn[$key]['name'] = $info['name'];
 			$rtn[$key]['checked'] = in_array($info['id'], $allPermission) ? true : false;
-			$rtn[$key]['createTime'] = $info['create_time'];
-			$rtn[$key]['updateTime'] = $info['update_time'];
+			$rtn[$key]['createTime'] = $info['createTime'];
+			$rtn[$key]['updateTime'] = $info['updateTime'];
 		}
 
 		return packApiData(200, 'success', ['node' => $rtn], '', false);
@@ -79,14 +79,15 @@ class Menu extends BaseController
 
 			foreach ($list as $key => $info) {
 				$rtn[$key]['id'] = $info['id'];
-				$rtn[$key]['pId'] = $info['father_id'];
+				$rtn[$key]['pId'] = $info['fatherId'];
 				$rtn[$key]['menuIcon'] = $info['icon'];
 				$rtn[$key]['menuName'] = $info['name'];
 				$rtn[$key]['uri'] = $info['uri'];
 				$rtn[$key]['type'] = $info['type'];
+				$rtn[$key]['sort'] = $info['sort'];
 				$rtn[$key]['name'] = $info['name'];
-				$rtn[$key]['createTime'] = $info['create_time'];
-				$rtn[$key]['updateTime'] = $info['update_time'];
+				$rtn[$key]['createTime'] = $info['createTime'];
+				$rtn[$key]['updateTime'] = $info['updateTime'];
 			}
 
 			return packApiData(200, 'success', ['node' => $rtn], '', false);

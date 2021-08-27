@@ -7,7 +7,7 @@
  * @version 2020-07-12
  */
 
-namespace app\controller\api;
+namespace app\controller\api\v1;
 
 use app\BaseController;
 use app\model\Role as RoleModel;

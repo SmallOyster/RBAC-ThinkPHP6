@@ -244,7 +244,7 @@
 				lockScreen();
 
 				$.ajax({
-					url: window.CONFIG.apiPath + "role/list",
+					url: window.CONFIG.apiPath + "v1/role/list",
 					dataType: "json",
 					error: function (e) {
 						unlockScreen();
